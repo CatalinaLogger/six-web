@@ -1,0 +1,146 @@
+@import './variables.styl'
+@import './mixin.styl'
+@import './transition.styl'
+@import './element-ui.styl'
+@import './sidebar.styl'
+@import './flow.styl'
+
+body
+  -moz-osx-font-smoothing grayscale
+  -webkit-font-smoothing antialiased
+  text-rendering optimizeLegibility
+  color #606266
+  font-family: "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif
+
+html
+  box-sizing border-box
+
+*,
+*:before,
+*:after
+  box-sizing inherit
+
+div:focus
+  outline none
+
+a:focus,
+a:active
+  outline none
+
+a,
+a:focus,
+a:hover
+  cursor pointer
+  color inherit
+  text-decoration none
+
+.clearfix
+  &:after
+    visibility hidden
+    display block
+    font-size 0
+    content " "
+    clear both
+    height 0
+
+//main-container全局样式
+.app-main
+  min-height 100%
+
+.app-container
+  padding 20px
+  min-height calc(100vh - 84px)
+  &.back
+    background #efefef
+  &.none
+    padding 0
+  &.fixed
+    height calc(100vh - 84px)
+  &.fixed-none
+    padding 0
+    height calc(100vh - 84px)
+  .operate-wrapper
+    display flex
+    padding 8px
+    width 100%
+    background #d3d4d6
+    border-left 1px solid #efefef
+    border-right 1px solid #efefef
+    .left
+      flex-grow 1
+    .right
+      flex-grow 1
+      text-align right
+
+.app-box
+  &:hover
+    box-shadow 0 1px 3px 0 rgba(0,0,0,.08), 0 1px 1px 0 rgba(0,0,0,.05), 0 2px 1px -1px rgba(0,0,0,.06)
+
+.tool-bar
+  position relative
+  min-height 50px
+  line-height 50px
+  padding 0 20px
+  text-align right
+  transition 600ms ease position
+  background linear-gradient(90deg, rgba(32, 182, 249, 1) 0%, rgba(32, 182, 249, 1) 0%, rgba(33, 120, 241, 1) 100%, rgba(33, 120, 241, 1) 100%)
+  .subtitle
+    font-size 20px
+    color #fff
+  &.normal
+    background #409eff
+  &.success
+    background #8cff4c
+  &.info
+    background #d9dce2
+  &.warning
+    background #ffb542
+  &.danger
+    background #f56c6c
+
+// 搜索栏样式
+.query-wrapper
+  display flex
+  align-items center
+  .first
+    flex-grow 1
+  .button
+    min-width 141px
+  .el-button-group
+    margin-top -1px
+
+.level-0
+  font-weight bold
+  color #67c23a
+.level-1
+  font-weight bold
+  color #409eff
+.level-2
+  font-weight bold
+  color #e6a23c
+.level-3
+  font-weight bold
+  color #f56c6c
+
+.strong-font
+  font-weight bold
+  &.normal
+    color #409eff
+  &.success
+    color #8cff4c
+  &.info
+    color #d9dce2
+  &.warning
+    color #ffb542
+  &.danger
+    color #f56c6c
+
+.clear-fix
+  display: inline-block
+  &:after
+   display block
+   conten ''
+   height 0
+   line-height 0
+   clear both
+   visibility hidden
