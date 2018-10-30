@@ -28,6 +28,7 @@ export default {
     leave: '请假申请',
     purchase: '采购申请',
     contract: '合同签署',
+    furlough: '调休申请',
     page401: '401',
     page404: '404'
   },

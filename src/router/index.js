@@ -51,10 +51,15 @@ export function treeToRouters(menuTree, parent, meta, src, level) {
       let tmp = {meta: {}}
       let _level = 1
       if (level !== undefined && level !== null) {
-        _level = level + 1
-        parent.push(tmp)
-        tmp.path = record.path
-        tmp.component = _import(`${src}${record.path}/index`)
+        try {
+          tmp.component = _import(`${src}${record.path}/index`)
+          _level = level + 1
+          parent.push(tmp)
+          tmp.path = record.path
+        } catch (e) {
+          /** 找不到模板文件不做处理 */
+          return
+        }
       } else {
         src = ''
         routers.push(tmp)

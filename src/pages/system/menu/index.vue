@@ -29,7 +29,7 @@
       </el-table-column>
       <el-table-column align="center" label="更新人员" show-overflow-tooltip>
         <template slot-scope="scope">
-          <el-tag type="warning">{{scope.row.operator}}</el-tag>
+          <el-tag type="warning">{{scope.row.operateName}}</el-tag>
         </template>
       </el-table-column>
       <el-table-column align="center" label="操作" width="280">

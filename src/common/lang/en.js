@@ -27,6 +27,7 @@ export default {
     leave: 'Leave',
     purchase: 'Purchase',
     contract: 'Contract',
+    furlough: 'Furlough',
     page401: '401',
     page404: '404'
   },

@@ -1,16 +1,18 @@
 <template>
   <div class="app-container none back">
     <el-row>
-      <el-col class="category-option app-box" :span="8" v-for="item in categoryFlow" :key="item.category">
-        <title-line :title="mateCategory(item.category)" type="success"></title-line>
-        <el-row class="process-option">
-          <el-col :span="8" v-for="process in item.process" :key="process.id">
-            <router-link class="button" tag="div" :to="{ name: 'keep_' + process.key, params: {defineId: process.id, formKey: 'a'}}">
-              <svg-icon :icon-class="'flow-' + process.key" />
-              <p>{{process.name}}</p>
-            </router-link>
-          </el-col>
-        </el-row>
+      <el-col class="category-option" :span="8" v-for="item in categoryFlow" :key="item.category">
+        <div class="app-box">
+          <title-line :title="mateCategory(item.category)" type="success"></title-line>
+          <el-row class="process-option">
+            <el-col :span="8" v-for="process in item.process" :key="process.id">
+              <router-link class="button" tag="div" :to="{name: 'keep_' + process.key, params: {defineId: process.id, formKey: 'a'}}">
+                <div class="icon-box"><svg-icon :icon-class="'flow-' + process.key" /></div>
+                <p class="icon-text">{{process.name}}</p>
+              </router-link>
+            </el-col>
+          </el-row>
+        </div>
       </el-col>
     </el-row>
   </div>
@@ -20,6 +22,7 @@
 import TitleLine from '@/components/title-line'
 import { getConfDataTree } from '@/api/global'
 import { getFlowList } from '@/api/flow'
+
 export default {
   name: 'keep_start',
   data() {
@@ -75,12 +78,13 @@ export default {
   padding 10px
   .category-option
     position relative
-    margin 10px
-    background white
+    padding 10px
+    .app-box
+      background white
     .title-line
       margin 0 10px
     .process-option
-      padding 60px 10px 10px 10px
+      padding 50px 10px 10px 10px
       .button
         position relative
         margin 0 auto
@@ -88,11 +92,24 @@ export default {
         width 100px
         text-align center
         cursor pointer
-        background #F2F6FC
-        border 1px solid #ccc
-        border-radius 10px
+        .icon-box
+          margin auto
+          width 70px
+          height 70px
+          color white
+          background #66b1ff
+          border-radius 8px
+          .svg-icon
+            margin-top 10px
+            font-size 50px
+        .icon-text
+          font-size 13px
+          color #909399
+        &:hover
+          .icon-box
+            background #409eff
+          .icon-text
+            color #606266
         &:active
           top 4px
-        .svg-icon
-          font-size 50px
 </style>

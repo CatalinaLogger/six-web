@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container none">
+  <div class="app-container back none">
     <div class="form-wrapper">
       <el-form :model="workModel" :rules="workRules" label-position="left" ref="workForm">
         <el-form-item>
@@ -76,7 +76,6 @@ export default {
   mixins: [flowFormMixin],
   data() {
     return {
-      baseURL: process.env.BASE_API,
       workRules: {
         leader: [{required: true, message: '部门负责人为必选项', trigger: 'blur'}]
       },
@@ -88,9 +87,6 @@ export default {
     this._getUserRole()
   },
   methods: {
-    changeTable(list) {
-      this.workModel.materielList = list
-    },
     /** 发起人处理结果 */
     startProcess(param) {
       this.loading = true
