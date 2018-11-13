@@ -63,8 +63,8 @@
             <el-col :span="14">
               <el-form-item label="工作时间" label-width="80px">
                 <el-date-picker
-                  v-model="workModel.work[index]"
-                  format="yyyy-MM-dd HH:mm:ss"
+                  v-model="item.date"
+                  :change="changeDate(item)"
                   type="datetimerange"
                   range-separator="至"
                   start-placeholder="开始时间"
@@ -73,8 +73,8 @@
               </el-form-item>
             </el-col>
             <el-col :span="8">
-              <el-form-item label="工作时长" label-width="80px">
-                <el-input v-model="countHours" max="20"></el-input>
+              <el-form-item label="时长（含休息时间）" label-width="140px">
+                <el-input v-model="item.hours" max="20"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span="2">
@@ -82,16 +82,29 @@
               <el-button type="primary" icon="el-icon-minus" @click="deleteWork(index)" v-else></el-button>
             </el-col>
           </el-row>
-          <el-form-item label="调休时间" label-width="80px">
-            <el-date-picker
-              v-model="workModel.leave"
-              format="yyyy-MM-dd HH:mm:ss"
-              type="datetimerange"
-              range-separator="至"
-              start-placeholder="开始时间"
-              end-placeholder="结束结束">
-            </el-date-picker>
-          </el-form-item>
+          <el-row :gutter="20" v-for="(item, index) in workModel.leave" :key="index">
+            <el-col :span="14">
+              <el-form-item label="调休时间" label-width="80px">
+                <el-date-picker
+                  v-model="item.date"
+                  :change="changeDate(item)"
+                  type="datetimerange"
+                  range-separator="至"
+                  start-placeholder="开始时间"
+                  end-placeholder="结束时间">
+                </el-date-picker>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item label="调休时长" label-width="140px">
+                <el-input v-model="item.hours" max="20"></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="2">
+              <el-button type="primary" icon="el-icon-plus" @click="appendLeave" v-if="index + 1 === workModel.leave.length"></el-button>
+              <el-button type="primary" icon="el-icon-minus" @click="deleteLeave(index)" v-else></el-button>
+            </el-col>
+          </el-row>
         </div>
         <approve-panel :formKey="formKey" :processId="task.procInstId" @handel="solveProcess"></approve-panel>
       </el-form>
@@ -112,21 +125,26 @@ export default {
       loading: false
     }
   },
-  computed: {
-    countHours() {
-      if (this.workModel.work) {
-        console.log(this.workModel.work[0])
-        console.log(this.workModel.work[1])
-      }
-      return 5
-    }
-  },
   methods: {
+    changeDate(work) {
+      if (work.date[0] && work.date[1]) {
+        let time = work.date[1].getTime() - work.date[0].getTime()
+        let hours = time / 1000 / 60 / 60
+        work.hours = hours
+      }
+      return ''
+    },
     appendWork() {
-      this.workModel.work.push({})
+      this.workModel.work.push({date: '', hours: ''})
     },
     deleteWork(index) {
-      this.workModel.work.splice(index - 1, 1)
+      this.workModel.work.splice(index, 1)
+    },
+    appendLeave() {
+      this.workModel.leave.push({date: '', hours: ''})
+    },
+    deleteLeave(index) {
+      this.workModel.leave.splice(index, 1)
     },
     /** 发起人处理结果 */
     startProcess(param) {
@@ -139,7 +157,13 @@ export default {
     },
     /** 创建申请表单数据 */
     _createWorkModel() {
-      this.workModel = {title: `调休申请 -- ${this.mine.name}`, level: 0, userName: this.mine.name, deptName: this.mine.deptName, work: [{}]}
+      this.workModel = {
+        title: `调休申请 -- ${this.mine.name}`,
+        level: 0,
+        userName: this.mine.name,
+        deptName: this.mine.deptName,
+        work: [{date: '', hours: ''}],
+        leave: [{date: '', hours: ''}]}
     },
     /** 查询申请表单数据 */
     _selectWorkModel() {

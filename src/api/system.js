@@ -63,10 +63,14 @@ export function getDeptTree() {
   })
 }
 
-export function getDeptMine() {
+/** 获取部门主管列表 */
+export function getDeptLeadList(deptId) {
   return request({
-    url: '/system/dept/mine',
-    method: 'get'
+    url: '/system/dept/lead/list',
+    method: 'get',
+    params: {
+      deptId
+    }
   })
 }
 
@@ -77,8 +81,6 @@ export function insertDept(dept) {
     params: {
       name: dept.name,
       parentId: dept.parent.id,
-      leaderId: dept.leaderId,
-      helperId: dept.helperId,
       seq: dept.seq,
       remark: dept.remark
     }
@@ -93,8 +95,7 @@ export function updateDept(dept) {
       id: dept.id,
       name: dept.name,
       parentId: dept.parent.id,
-      leaderId: dept.leaderId,
-      helperId: dept.helperId,
+      leadKeys: dept.leadKeys.toString(),
       seq: dept.seq,
       remark: dept.remark
     }
@@ -108,6 +109,13 @@ export function deleteDept(deptId) {
     params: {
       deptId
     }
+  })
+}
+
+export function getGroupList() {
+  return request({
+    url: '/system/role/group/list',
+    method: 'get'
   })
 }
 
@@ -138,6 +146,27 @@ export function getRoleMenuKeys(roleId) {
   })
 }
 
+export function insertGroup(group) {
+  return request({
+    url: '/system/role/group/insert',
+    method: 'post',
+    params: {
+      name: group.name
+    }
+  })
+}
+
+export function updateGroup(group) {
+  return request({
+    url: '/system/role/group/update',
+    method: 'put',
+    params: {
+      id: group.id,
+      name: group.name
+    }
+  })
+}
+
 /** 添加角色信息并且更新绑定的菜单权限信息 */
 export function insertRole(role) {
   return request({
@@ -147,6 +176,7 @@ export function insertRole(role) {
       id: role.id,
       code: role.code,
       name: role.name,
+      groupId: role.groupId,
       menuKeys: role.menuKeys.toString()
     }
   })
@@ -161,6 +191,7 @@ export function updateRole(role) {
       id: role.id,
       code: role.code,
       name: role.name,
+      groupId: role.groupId,
       menuKeys: role.menuKeys.toString()
     }
   })
@@ -271,6 +302,7 @@ export function insertUser(user) {
       deptId: user.deptId,
       status: user.status,
       remark: user.remark,
+      deptKeys: user.deptKeys.toString(),
       roleKeys: user.roleKeys.toString()
     }
   })
@@ -289,6 +321,7 @@ export function updateUser(user) {
       deptId: user.deptId,
       status: user.status,
       remark: user.remark,
+      deptKeys: user.deptKeys.toString(),
       roleKeys: user.roleKeys.toString()
     }
   })
@@ -335,6 +368,17 @@ export function getUserListRole(roleCode) {
 export function getUserRoleKeys(userId) {
   return request({
     url: '/system/user/role/keys',
+    method: 'get',
+    params: {
+      userId
+    }
+  })
+}
+
+/** 获取用户所在部门列表 */
+export function getUserDeptList(userId) {
+  return request({
+    url: '/system/user/dept/list',
     method: 'get',
     params: {
       userId

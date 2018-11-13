@@ -4,14 +4,14 @@
       <el-button type="success" size="mini" @click="addDept()">添加</el-button>
     </div>
     <tree-table :data="deptTree" :columns="columns" expandAll border stripe>
-      <el-table-column align="center" prop="leaderName" label="负责人"></el-table-column>
-      <el-table-column align="center" prop="helperName" label="协助人"></el-table-column>
+      <el-table-column align="center" label="主管" show-overflow-tooltip>
+        <template slot-scope="scope">
+          <el-tag type="primary" v-for="(item, index) in scope.row.lead" :key="index" >{{item.name}}</el-tag>
+        </template>
+      </el-table-column>
       <el-table-column align="center" prop="seq" label="排序号"></el-table-column>
       <el-table-column align="center" prop="remark" label="备注"></el-table-column>
-      <el-table-column
-        align="center"
-        label="更新时间"
-        show-overflow-tooltip>
+      <el-table-column align="center" label="更新时间" show-overflow-tooltip>
         <template slot-scope="scope">
           <i class="el-icon-time"></i>
           <span style="margin-left: 10px">{{ scope.row.operateTime }}</span>
@@ -43,29 +43,13 @@
         <el-form-item label="部门名称" prop="name">
           <el-input v-model="deptModel.name"></el-input>
         </el-form-item>
-        <el-form-item label="负责人" prop="leaderId">
-          <el-select v-model="deptModel.leaderId" placeholder="请选择">
-            <el-option
-              v-for="item in userList"
-              :disabled="item.id === deptModel.helperId"
-              :key="item.id"
-              :label="item.name"
-              :value="item.id">
-            </el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="协助人">
-          <el-select v-model="deptModel.helperId" placeholder="请选择">
-            <el-option>
-            </el-option>
-            <el-option
-              v-for="item in userList"
-              :disabled="item.id === deptModel.leaderId"
-              :key="item.id"
-              :label="item.name"
-              :value="item.id">
-            </el-option>
-          </el-select>
+        <el-form-item label="设置主管" v-if="deptFormUpdate">
+          <el-button plain style="width: 100%; overflow: hidden" @click="showUserList">
+            <div v-if="deptModel.leadKeys.length > 0">
+              <span class="lead-block" v-for="(item, index) in deptModel.leadNames" :key="index" >{{item}}</span>
+            </div>
+            <span class="lead-empty" v-else>请选择主管</span>
+          </el-button>
         </el-form-item>
         <el-form-item label="排序号" prop="seq">
           <el-input v-model="deptModel.seq"></el-input>
@@ -77,6 +61,25 @@
       <div slot="footer" class="dialog-footer">
         <el-button @click="deptVisible = false">取 消</el-button>
         <el-button type="primary" @click="saveDeptModel">确 定</el-button>
+      </div>
+    </el-dialog>
+    <el-dialog
+      title="选择人员"
+      top="0"
+      width="536px"
+      :visible.sync="leadVisible"
+      append-to-body>
+      <el-transfer
+        filterable
+        filter-placeholder="请输入姓名"
+        :titles="titles"
+        :data="userList"
+        v-model="leadList"
+        :filter-method="filterUser">
+      </el-transfer>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="leadVisible = false">取 消</el-button>
+        <el-button type="primary" @click="saveLeadList">确 定</el-button>
       </div>
     </el-dialog>
     <el-dialog
@@ -95,7 +98,7 @@
 
 <script type="text/ecmascript-6">
 import treeTable from '@/components/tree-table'
-import { getDeptTree, getDeptMine, insertDept, updateDept, deleteDept, getUserListRole } from '@/api/system'
+import { getDeptTree, getDeptLeadList, insertDept, updateDept, deleteDept, getUserPage } from '@/api/system'
 
 export default {
   name: 'keep_dept',
@@ -115,51 +118,81 @@ export default {
           width: 240
         }
       ],
+      deptRoot: {},
       deptTree: [],
-      deptMine: {},
-      userList: [],
       deptFormTitle: '',
+      deptFormUpdate: false,
       deptVisible: false,
       deptModel: {
         parent: {
           id: 0,
           name: ''
-        }
+        },
+        leadKeys: [],
+        leadNames: []
       },
       deptRules: {
         name: [{required: true, trigger: 'blur', validator: validateName}],
         seq: [{required: true, message: '排序号为必填项', trigger: 'blur'}]
+      },
+      leadVisible: false,
+      titles: ['选择', '已选'],
+      userList: [],
+      leadList: [],
+      filterUser(query, item) {
+        return item.label.indexOf(query) > -1
       },
       deleteVisible: false
     }
   },
   mounted() {
     this._getDeptTree()
-    this._getDeptMine()
-    this._getUserRole()
   },
   methods: {
     editDept(dept) {
+      this.deptFormUpdate = true
+      this.userList = []
+      this.leadList = []
       this.deptModel = {
-        leaderId: '',
-        helperId: '',
         parent: {
-          id: this.deptMine.id,
-          name: this.deptMine.name
-        }
+          id: this.deptRoot.id,
+          name: this.deptRoot.name
+        },
+        leadKeys: [],
+        leadNames: []
       }
+      getUserPage(dept.id, null, 1, 1000).then(res => {
+        if (res.data.data) {
+          res.data.data.forEach(user => {
+            this.userList.push({
+              label: user.name,
+              key: user.id
+            })
+          })
+        }
+      })
+      getDeptLeadList(dept.id).then(res => {
+        this.deptModel.leadKeys = res.data.map(item => {
+          return item.id
+        })
+        this.deptModel.leadNames = res.data.map(item => {
+          return item.name
+        })
+        this.leadList = this.deptModel.leadKeys
+      })
       Object.assign(this.deptModel, dept)
       this.deptFormTitle = '编辑部门信息'
       this.deptVisible = true
     },
     addDept(dept) {
+      this.deptFormUpdate = false
       this.deptModel = {
-        leaderId: '',
-        helperId: '',
         parent: {
-          id: this.deptMine.id,
-          name: this.deptMine.name
-        }
+          id: this.deptRoot.id,
+          name: this.deptRoot.name
+        },
+        leadKeys: [],
+        leadNames: []
       }
       if (dept) {
         Object.assign(this.deptModel.parent, dept)
@@ -167,6 +200,27 @@ export default {
       this.deptModel.seq = 1
       this.deptFormTitle = '添加部门信息'
       this.deptVisible = true
+    },
+    showUserList() {
+      this.leadVisible = true
+    },
+    saveLeadList() {
+      let leadList = this.userList.filter(user => {
+        let bool = false
+        this.leadList.forEach(key => {
+          if (key === user.key) {
+            bool = true
+          }
+        })
+        return bool
+      })
+      this.deptModel.leadKeys = leadList.map(item => {
+        return item.key
+      })
+      this.deptModel.leadNames = leadList.map(item => {
+        return item.label
+      })
+      this.leadVisible = false
     },
     deleteDept(dept) {
       Object.assign(this.deptModel, dept)
@@ -200,17 +254,8 @@ export default {
     },
     _getDeptTree() {
       getDeptTree().then(res => {
-        this.deptTree = res.data
-      })
-    },
-    _getDeptMine() {
-      getDeptMine().then(res => {
-        this.deptMine = res.data
-      })
-    },
-    _getUserRole() {
-      getUserListRole('leader').then(res => {
-        this.userList = res.data
+        this.deptRoot = {id: res.data[0].id, name: res.data[0].name}
+        this.deptTree = res.data[0].children
       })
     }
   },
@@ -221,6 +266,12 @@ export default {
 </script>
 
 <style scoped lang="stylus" rel="stylesheet/stylus">
-.el-select
-  display block
+.el-tag
+  margin 0 2px
+.lead-block
+  padding 5px
+  margin-right 5px
+  background #eee
+.lead-empty
+  color #ccc
 </style>

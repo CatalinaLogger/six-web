@@ -1,16 +1,17 @@
 <template>
   <div class="app-container fixed back">
     <div class="card-item guide app-box">
-      <div class="card-title" :class="{'all-dept':allDept}" @click="clickAllDept">
-        <span class="title-text">{{deptMine.name}}</span>
+      <div class="card-title" :class="{'all-dept':rootDept}" @click="clickRootDept">
+        <span class="title-text">{{deptRoot.name}}</span>
       </div>
       <scroll-bar class="dept-option-wrapper">
-        <div class="dept-tree-wrapper">
+        <div class="six-tree-wrapper">
           <el-tree
             default-expand-all
             :data="deptTree"
             :props="deptProps"
             :highlight-current="highlight"
+            :expand-on-click-node=false
             @node-click="nodeClick"
             ref="tree">
           </el-tree>
@@ -19,7 +20,7 @@
     </div>
     <div class="card-item center app-box">
       <div class="card-title">
-        <el-button type="success" size="mini" @click="addUser" :disabled="allDept">添加</el-button>
+        <el-button type="success" size="mini" @click="addUser" :disabled="rootDept">添加</el-button>
         <el-button type="danger" size="mini" @click="batchDeleteUser" :disabled="disabledUser">删除</el-button>
         <el-input class="input-query" size="mini" v-model="query" placeholder="姓名/手机/邮箱" clearable>
           <el-button slot="append" @click="handleQuery">查询</el-button>
@@ -119,8 +120,13 @@
           <el-form-item label="邮箱" prop="mail">
             <el-input v-model="userModel.mail" max="40"></el-input>
           </el-form-item>
-          <el-form-item label="所属部门">
-            <el-button type="primary" plain style="width: 100%" @click="showDeptTree">{{userModel.deptName}}</el-button>
+          <el-form-item label="部门" prop="deptKeys">
+            <el-button plain style="width: 100%; overflow: hidden" @click="showDeptTree">
+              <div v-if="userModel.deptKeys.length > 0">
+                <span class="dept-block" v-for="(item, index) in userModel.deptNames" :key="index" >{{item}}</span>
+              </div>
+              <span class="dept-empty" v-else>请选择部门</span>
+            </el-button>
           </el-form-item>
           <el-form-item label="备注">
             <el-input v-model="userModel.remark" max="200"></el-input>
@@ -140,20 +146,28 @@
         </el-form>
       </scroll-bar>
       <el-dialog
-        title="部门列表"
+        title="选择部门"
         top="0"
         width="400px"
         :visible.sync="treeVisible"
         append-to-body>
-        <div class="dept-wrapper">
+        <scroll-bar class="dept-wrapper">
           <el-tree
             class="dept-tree-option"
-            accordion
+            node-key="id"
+            show-checkbox
+            check-strictly
             default-expand-all
+            :expand-on-click-node=false
             :data="deptTree"
             :props="deptProps"
-            @node-click="dialogNodeClick">
+            :default-checked-keys="userModel.deptKeys"
+            ref="deptTree">
           </el-tree>
+        </scroll-bar>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="treeVisible = false">取 消</el-button>
+          <el-button type="primary" @click="saveDeptList">确 定</el-button>
         </div>
       </el-dialog>
       <div slot="footer" class="dialog-footer">
@@ -188,8 +202,7 @@
 
 <script type="text/ecmascript-6">
 import ScrollBar from '@/components/scroll-bar'
-import treeToArray from '@/components/tree-table/eval'
-import { getDeptTree, getDeptMine, getRoleMine, getUserRoleKeys, getUserPage, checkExist, insertUser, updateUser, deleteUser, deleteBatchUser } from '@/api/system'
+import { getDeptTree, getRoleMine, getUserDeptList, getUserRoleKeys, getUserPage, checkExist, insertUser, updateUser, deleteUser, deleteBatchUser } from '@/api/system'
 
 export default {
   name: 'keep_user',
@@ -238,12 +251,11 @@ export default {
       }
     }
     return {
-      allDept: true,
+      rootDept: true,
       highlight: false,
-      deptList: [],
       roleList: [],
+      deptRoot: {},
       deptTree: [],
-      deptMine: {},
       deptProps: {
         children: 'children',
         label: 'name'
@@ -258,12 +270,13 @@ export default {
       userFormTitle: '',
       userVisible: false,
       treeVisible: false,
-      userModel: {status: 0, roleKeys: []},
+      userModel: {status: 0, deptKeys: [], deptNames: [], roleKeys: []},
       userRules: {
         username: [{required: true, trigger: 'blur', validator: validateUsername}],
-        name: [{required: true, trigger: 'blur', message: '姓名为必填项'}],
+        name: [{required: true, trigger: 'blur', message: '姓名不能为空'}],
         phone: [{required: true, trigger: 'blur', validator: validatePhone}],
-        mail: [{required: true, trigger: 'blur', validator: validateMail}]
+        mail: [{required: true, trigger: 'blur', validator: validateMail}],
+        deptKeys: [{required: true, trigger: 'blur', message: '部门不能为空'}]
       },
       deleteVisible: false,
       userKeys: [],
@@ -289,30 +302,29 @@ export default {
   },
   mounted() {
     this._getDeptTree()
-    this._getDeptMine()
     this._getRoleMine()
     this._getUserPage(null, null, this.currentPage, this.pageSize)
   },
   methods: {
     nodeClick(dept) {
-      this.allDept = false
+      this.rootDept = false
       this.highlight = true
       this.currentDept = dept
       this._getUserPage(this.currentDept.id, this.query, this.currentPage, this.pageSize)
     },
-    clickAllDept() {
+    clickRootDept() {
       this.currentDept = {}
       this._getUserPage(null, this.query, this.currentPage, this.pageSize)
       this.highlight = false
-      this.allDept = true
+      this.rootDept = true
     },
     handleQuery() {
       this._getUserPage(this.currentDept.id, this.query, this.currentPage, this.pageSize)
     },
     addUser() {
       this.userModel = {
-        deptId: this.currentDept.id,
-        deptName: this.currentDept.name,
+        deptKeys: [this.currentDept.id],
+        deptNames: [this.currentDept.name],
         status: 0,
         roleKeys: []
       }
@@ -321,11 +333,14 @@ export default {
     },
     editUser(user) {
       Object.assign(this.userModel, user)
-      let dept = this.deptList.find(item => {
-        return item.id === user.deptId
+      getUserDeptList(user.id).then(res => {
+        this.userModel.deptKeys = res.data.map(item => {
+          return item.id
+        })
+        this.userModel.deptNames = res.data.map(item => {
+          return item.name
+        })
       })
-      this.userModel.deptName = dept.name
-      this.userModel.roleKeys = []
       getUserRoleKeys(user.id).then(res => {
         this.userModel.roleKeys = res.data
       })
@@ -362,6 +377,8 @@ export default {
       })
     },
     closeUserForm() {
+      this.userModel = {status: 0, deptKeys: [], deptNames: [], roleKeys: []}
+      this.$refs.deptTree.setCheckedKeys([])
       this.$refs.userForm.clearValidate()
     },
     saveUserModel() {
@@ -383,10 +400,15 @@ export default {
     },
     showDeptTree() {
       this.treeVisible = true
+      setTimeout(() => {
+        this.$refs.deptTree.setCheckedKeys(this.userModel.deptKeys, true)
+      }, 10)
     },
-    dialogNodeClick(dept) {
-      this.userModel.deptId = dept.id
-      this.userModel.deptName = dept.name
+    saveDeptList() {
+      this.userModel.deptKeys = this.$refs.deptTree.getCheckedKeys()
+      this.userModel.deptNames = this.$refs.deptTree.getCheckedNodes().map(item => {
+        return item.name
+      })
       this.treeVisible = false
     },
     handleSizeChange(val) {
@@ -401,13 +423,8 @@ export default {
     },
     _getDeptTree() {
       getDeptTree().then(res => {
-        this.deptTree = res.data
-        this.deptList = treeToArray(res.data, false)
-      })
-    },
-    _getDeptMine() {
-      getDeptMine().then(res => {
-        this.deptMine = res.data
+        this.deptRoot = {id: res.data[0].id, name: res.data[0].name}
+        this.deptTree = res.data[0].children
       })
     },
     _getRoleMine() {
@@ -467,10 +484,17 @@ export default {
   height 470px
   overflow hidden
   background-color white
+  .dept-block
+    padding 5px
+    margin-right 5px
+    background #eee
+  .dept-empty
+    color #ccc
   .role-item
     margin 0 20px 0 0
 .dept-wrapper
-  min-height 400px
+  height 400px
+  overflow hidden
   .dept-tree-option
     margin 0 30px
 </style>

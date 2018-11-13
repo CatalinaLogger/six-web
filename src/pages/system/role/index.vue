@@ -3,81 +3,113 @@
     <div class="card-item guide app-box">
       <div class="card-title">
         <span class="title-text">角色列表</span>
-        <el-button class="add-button" type="success" size="mini" @click="addRole()">添加角色</el-button>
+        <el-button class="add-button" type="success" size="mini" @click="addGroup()">新增角色组</el-button>
       </div>
       <scroll-bar class="role-option-wrapper" :delta="15">
-        <div class="role-option" v-for="(item, index) in roleData" :class="highlightRole(item)" :key="index" @click="selectRole(item)">
-          <span class="role-name">
-            {{item.name}}
-            <span class="code">{{item.code}}</span>
-          </span>
-          <el-button-group>
-            <el-button type="warning" icon="el-icon-edit" size="mini" @click.stop="editRole(item)"></el-button>
-            <el-button type="danger" icon="el-icon-delete" size="mini" @click.stop="deleteRole(item)"></el-button>
-          </el-button-group>
+        <div class="six-tree-wrapper">
+          <el-tree
+            highlight-current
+            default-expand-all
+            node-key="id"
+            :data="roleTree"
+            :props="roleProps"
+            :expand-on-click-node=false
+            @node-click="nodeClick"
+            ref="roleTree">
+          </el-tree>
         </div>
       </scroll-bar>
     </div>
     <div class="card-item center app-box">
-      <div class="card-title">
-        <el-button type="success" size="mini" @click="pushUser()" :disabled="disabledPush">绑定用户</el-button>
-        <el-button type="danger" size="mini" @click="pullUser()" :disabled="disabledPull">解绑用户</el-button>
-        <el-input class="input-query" size="mini" v-model="query" placeholder="姓名/手机/邮箱" clearable>
-          <el-button slot="append" @click="handleQuery">查询</el-button>
-        </el-input>
+      <div class="group" v-if="currentRole.parentId === 0">
+        <div class="card-title">
+          <el-button type="primary" size="mini" @click="editGroup()" :disabled="!currentRole.edit">编辑</el-button>
+          <el-button type="danger" size="mini" @click="deleteGroup()" :disabled="!currentRole.edit">删除</el-button>
+          <el-button class="add-button" type="success" size="mini" @click="addRole()" :disabled="!currentRole.edit">新增角色</el-button>
+        </div>
+        <scroll-bar class="inside-table-wrapper" :list="currentRole.children">
+          <el-table
+            stripe
+            :key="1"
+            :data="currentRole.children">
+            <el-table-column align="center" prop="code" label="角色编码"></el-table-column>
+            <el-table-column align="center" prop="name" label="角色名称"></el-table-column>
+            <el-table-column align="center" label="更新时间" show-overflow-tooltip>
+              <template slot-scope="scope">
+                <i class="el-icon-time"></i>
+                <span style="margin-left: 10px">{{ scope.row.operateTime }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column align="center" label="更新人员" show-overflow-tooltip>
+              <template slot-scope="scope">
+                <el-tag type="warning">{{scope.row.operateName}}</el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column align="center" label="操作" width="200">
+              <template slot-scope="scope">
+                <el-button type="primary" size="mini" @click="editRole(scope.row)" :disabled="!currentRole.edit">编辑</el-button>
+                <el-button type="danger" size="mini" @click="deleteRole(scope.row)" :disabled="!currentRole.edit">删除</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </scroll-bar>
       </div>
-      <scroll-bar class="inside-table-wrapper" :list="userData">
-        <el-table
-          stripe
-          :data="userData"
-          @selection-change="untyingUser">
-          <el-table-column
-            align="center"
-            type="selection">
-          </el-table-column>
-          <el-table-column
-            prop="name"
-            label="姓名"
-            show-overflow-tooltip>
-          </el-table-column>
-          <el-table-column
-            prop="phone"
-            label="手机"
-            show-overflow-tooltip>
-          </el-table-column>
-          <el-table-column
-            prop="mail"
-            label="邮箱"
-            show-overflow-tooltip>
-          </el-table-column>
-          <el-table-column
-            align="center"
-            label="部门"
-            show-overflow-tooltip>
-            <template slot-scope="scope">
-              <el-tag type="primary">{{scope.row.deptName}}</el-tag>
-            </template>
-          </el-table-column>
-          <el-table-column align="center" label="状态">
-            <template slot-scope="scope">
-              <el-tag type="info" v-if="scope.row.status === 0">未激活</el-tag>
-              <el-tag type="success" v-if="scope.row.status === 1">正常</el-tag>
-              <el-tag type="danger" v-if="scope.row.status === 2">冻结</el-tag>
-            </template>
-          </el-table-column>
-        </el-table>
-      </scroll-bar>
-      <el-pagination
-        background
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-        :current-page.sync="currentPage"
-        :page-sizes="pageSizes"
-        :page-size="pageSize"
-        layout="total, sizes, prev, pager, next"
-        :total="totalRecode">
-      </el-pagination>
+      <div class="role" v-else>
+        <div class="card-title">
+          <el-button type="success" size="mini" @click="pushUser()" :disabled="!currentRole.edit">添加成员</el-button>
+          <el-button type="warning" size="mini" @click="pullUser()" :disabled="!currentRole.edit">批量移除</el-button>
+          <el-input class="input-query" size="mini" v-model="query" placeholder="姓名/手机/邮箱" clearable>
+            <el-button slot="append" @click="handleQuery">查询</el-button>
+          </el-input>
+        </div>
+        <scroll-bar class="inside-table-wrapper pagination" :list="userData">
+          <el-table
+            stripe
+            :key="2"
+            :data="userData"
+            @selection-change="untyingUser">
+            <el-table-column align="center" type="selection"></el-table-column>
+            <el-table-column prop="name" label="姓名" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="phone" label="手机" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="mail" label="邮箱" show-overflow-tooltip></el-table-column>
+            <el-table-column align="center" label="状态">
+              <template slot-scope="scope">
+                <el-tag type="info" v-if="scope.row.status === 0">未激活</el-tag>
+                <el-tag type="success" v-if="scope.row.status === 1">正常</el-tag>
+                <el-tag type="danger" v-if="scope.row.status === 2">冻结</el-tag>
+              </template>
+            </el-table-column>
+          </el-table>
+        </scroll-bar>
+        <el-pagination
+          background
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          :current-page.sync="currentPage"
+          :page-sizes="pageSizes"
+          :page-size="pageSize"
+          layout="total, sizes, prev, pager, next"
+          :total="totalRecode">
+        </el-pagination>
+      </div>
     </div>
+    <el-dialog
+      top="0"
+      width="500px"
+      :title="groupFormTitle"
+      :visible.sync="groupVisible"
+      @close="closeGroupForm"
+      append-to-body>
+      <el-form :model="groupModel" :rules="groupRules" ref="groupForm" style="margin: 0 60px">
+        <el-form-item label="角色组名称" prop="name">
+          <el-input v-model="groupModel.name" max="20"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer">
+        <el-button @click="groupVisible = false">取 消</el-button>
+        <el-button type="primary" @click="saveGroupModel">确 定</el-button>
+      </div>
+    </el-dialog>
     <el-dialog
       top="0"
       width="500px"
@@ -95,12 +127,13 @@
         <el-form-item label="角色授权">
           <scroll-bar class="menu-option-wrapper">
             <el-tree
-              :data="menuTree"
-              :props="menuProps"
               node-key="id"
-              :default-checked-keys="roleModel.menuKeys"
               show-checkbox
               default-expand-all
+              :expand-on-click-node=false
+              :data="menuTree"
+              :props="menuProps"
+              :default-checked-keys="roleModel.menuKeys"
               ref="menuTree">
             </el-tree>
           </scroll-bar>
@@ -146,14 +179,6 @@
             label="邮箱"
             show-overflow-tooltip>
           </el-table-column>
-          <el-table-column
-            align="center"
-            label="部门"
-            show-overflow-tooltip>
-            <template slot-scope="scope">
-              <el-tag type="primary">{{scope.row.deptName}}</el-tag>
-            </template>
-          </el-table-column>
           <el-table-column align="center" label="状态">
             <template slot-scope="scope">
               <el-tag type="info" v-if="scope.row.status === 0">未激活</el-tag>
@@ -182,10 +207,15 @@
       top="0"
       width="500px"
       title="操作提示"
-      :visible.sync="deleteVisible">
-      <div><p class="strong-font danger">删除后将无法恢复</p> 确定要删除 <span class="strong-font danger">{{roleModel.name}}</span> 吗？</div>
+      :visible.sync="deleteRoleVisible">
+      <div>
+        <p class="strong-font danger">删除后将无法恢复</p> 确定要删除
+        <span class="strong-font danger">{{roleModel.name}}</span>
+        <span v-if="roleModel.parentId === 0"> 这个角色组</span>
+        <span v-else> 这个角色</span>吗？
+      </div>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="deleteVisible = false">取 消</el-button>
+        <el-button @click="deleteRoleVisible = false">取 消</el-button>
         <el-button type="primary" @click="deleteRoleModel">确 定</el-button>
       </div>
     </el-dialog>
@@ -194,7 +224,7 @@
 
 <script type="text/ecmascript-6">
 import ScrollBar from '@/components/scroll-bar'
-import { getRoleList, getRoleMenuKeys, insertRole, updateRole, deleteRole, getMenuTree, getBoundUserPage, getUnboundUserPage, binding, untying } from '@/api/system'
+import { getGroupList, getRoleList, getRoleMenuKeys, insertGroup, updateGroup, insertRole, updateRole, deleteRole, getMenuTree, getBoundUserPage, getUnboundUserPage, binding, untying } from '@/api/system'
 
 export default {
   name: 'keep_role',
@@ -205,14 +235,26 @@ export default {
         children: 'children',
         label: 'name'
       },
-      roleData: [],
+      roleTree: [],
+      roleProps: {
+        children: 'children',
+        label: 'name'
+      },
+      groupList: [],
+      roleList: [],
+      groupVisible: false,
+      groupFormTitle: '',
+      groupModel: {},
+      groupRules: {
+        name: [{required: true, trigger: 'blur', message: '角色组名称为必填项'}]
+      },
       currentRole: {}, /** 当前选定角色 */
       roleModel: {menuKeys: []},
       roleRules: {
         code: [{required: true, trigger: 'blur', message: '角色编码为必填项'}],
         name: [{required: true, trigger: 'blur', message: '角色名称为必填项'}]
       },
-      deleteVisible: false,
+      deleteRoleVisible: false,
       roleFormTitle: '',
       roleVisible: false,
       currentPage: 1, /** 已绑定当前角色用户信息 */
@@ -241,14 +283,48 @@ export default {
     }
   },
   mounted() {
-    this._getRoleList()
+    this._getRoleData()
     this._getMenuTree()
   },
   methods: {
-    selectRole(row) {
-      this.currentRole = row
+    nodeClick(role) {
+      this.currentRole = role
       this._getBoundUserPage(this.currentRole.id, this.query, this.currentPage, this.pageSize)
       this._getUnboundUserPage(this.currentRole.id, this.queryUn, this.currentUnPage, this.pageUnSize)
+    },
+    addGroup() {
+      this.groupFormTitle = '新增角色组'
+      this.groupVisible = true
+    },
+    editGroup() {
+      this.groupModel = {id: this.currentRole.id, name: this.currentRole.name}
+      this.groupFormTitle = '编辑角色组'
+      this.groupVisible = true
+    },
+    deleteGroup() {
+      Object.assign(this.roleModel, this.currentRole)
+      this.deleteRoleVisible = true
+    },
+    saveGroupModel() {
+      this.$refs.groupForm.validate(valid => {
+        if (valid) {
+          if (this.groupModel.id) {
+            updateGroup(this.groupModel).then(() => {
+              this.groupVisible = false
+              this._getRoleData()
+            })
+          } else {
+            insertGroup(this.groupModel).then(() => {
+              this.groupVisible = false
+              this._getRoleData()
+            })
+          }
+        }
+      })
+    },
+    closeGroupForm() {
+      this.groupModel = {}
+      this.$refs.groupForm.clearValidate()
     },
     addRole() {
       this.roleVisible = true
@@ -257,28 +333,29 @@ export default {
       Object.assign(this.roleModel, role)
       getRoleMenuKeys(role.id).then(res => {
         res.data.forEach(key => {
-          this.$refs.menuTree.setChecked(key, true, false)
+          this.$refs.menuTree.setChecked(key, true)
         })
       })
       this.roleVisible = true
     },
     deleteRole(role) {
       Object.assign(this.roleModel, role)
-      this.deleteVisible = true
+      this.deleteRoleVisible = true
     },
     saveRoleModel() {
       this.$refs.roleForm.validate(valid => {
         if (valid) {
+          this.roleModel.groupId = this.currentRole.id
           this.roleModel.menuKeys = this.$refs.menuTree.getCheckedKeys().concat(this.$refs.menuTree.getHalfCheckedKeys())
           if (this.roleModel.id) {
             updateRole(this.roleModel).then(() => {
               this.roleVisible = false
-              this._getRoleList()
+              this._getRoleData()
             })
           } else {
             insertRole(this.roleModel).then(() => {
               this.roleVisible = false
-              this._getRoleList()
+              this._getRoleData()
             })
           }
         }
@@ -290,8 +367,8 @@ export default {
           this.userData = []
           this.userUnData = []
         }
-        this.deleteVisible = false
-        this._getRoleList()
+        this.deleteRoleVisible = false
+        this._getRoleData()
       })
     },
     closeRoleForm() {
@@ -370,10 +447,30 @@ export default {
         this._getUnboundUserPage(this.currentRole.id, this.queryUn, val, this.pageUnSize)
       }
     },
-    _getRoleList() {
-      getRoleList().then(res => {
-        this.roleData = res.data
+    _getRoleData() {
+      getGroupList().then(res => {
+        this.groupList = res.data
+        this._genRoleTree()
       })
+      getRoleList().then(res => {
+        this.roleList = res.data
+        this._genRoleTree()
+      })
+    },
+    _genRoleTree() {
+      this.roleTree = []
+      this.groupList.forEach(group => {
+        group.children = []
+        this.roleList.forEach(role => {
+          if (group.id === role.parentId) {
+            group.children.push(role)
+          }
+        })
+        this.roleTree.push(group)
+      })
+      setTimeout(() => {
+        this.$refs.roleTree.setCurrentNode(this.currentRole)
+      }, 10)
     },
     _getMenuTree() {
       getMenuTree().then(res => {
@@ -430,33 +527,18 @@ export default {
       height calc(100vh - 165px)
       background white
       overflow hidden
-      .role-option
-        padding 8px 11px
-        border-bottom 1px solid #ebebeb
-        &.current-row
-          font-weight bold
-          color white
-          background #409eff
-          .role-name
-            .code
-              color white
-          &:hover
-            background #409eff
-        &:hover
-          background #e2e2e2
-        .role-name
-          font-size 14px
-          line-height 28px
-          .code
-            color #909399
-        .el-button-group
-          float right
-          .el-button--mini
-            padding 7px 13px
+      .role-label
+        line-height 28px
+      .el-button-group
+        float right
+        .el-button--mini
+          padding 7px 13px
     .inside-table-wrapper
-      height calc(100vh - 220px)
+      height calc(100vh - 170px)
       background white
       overflow hidden
+      &.pagination
+        height calc(100vh - 220px)
     .el-pagination
       border-top 1px solid #ebebeb
       padding 8px 0 0 6px

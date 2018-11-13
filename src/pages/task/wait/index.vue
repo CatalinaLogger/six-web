@@ -73,16 +73,11 @@
       <el-table-column
         align="center"
         prop="createUser"
-        label="发起人">
+        label="申请人">
       </el-table-column>
       <el-table-column
         align="center"
-        prop="createDept"
-        label="所属部门">
-      </el-table-column>
-      <el-table-column
-        align="center"
-        label="发起时间"
+        label="申请时间"
         show-overflow-tooltip>
         <template slot-scope="scope">
           <i class="el-icon-time"></i>

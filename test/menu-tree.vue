@@ -21,6 +21,16 @@
 
       </el-submenu>
 
+      <div class="role-option" v-for="(item, index) in roleData" :class="highlightRole(item)" :key="index" @click="selectRole(item)">
+            <span class="role-name">
+              {{item.name}}
+              <span class="code">{{item.code}}</span>
+            </span>
+        <el-button-group>
+          <el-button type="warning" icon="el-icon-edit" size="mini" @click.stop="editRole(item)"></el-button>
+          <el-button type="danger" icon="el-icon-delete" size="mini" @click.stop="deleteRole(item)"></el-button>
+        </el-button-group>
+      </div>
     </template>
   </div>
 </template>

@@ -78,7 +78,7 @@
       </el-table-column>
       <el-table-column
         align="center"
-        label="发起时间"
+        label="申请时间"
         show-overflow-tooltip>
         <template slot-scope="scope">
           <i class="el-icon-time"></i>
@@ -87,7 +87,7 @@
       </el-table-column>
       <el-table-column
         align="center"
-        label="结束时间"
+        label="完成时间"
         show-overflow-tooltip>
         <template slot-scope="scope">
           <i class="el-icon-time" v-show="scope.row.endTime"></i>
