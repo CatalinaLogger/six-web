@@ -72,6 +72,11 @@
             <el-table-column prop="name" label="姓名" show-overflow-tooltip></el-table-column>
             <el-table-column prop="phone" label="手机" show-overflow-tooltip></el-table-column>
             <el-table-column prop="mail" label="邮箱" show-overflow-tooltip></el-table-column>
+            <el-table-column align="center" label="部门" show-overflow-tooltip>
+              <template slot-scope="scope">
+                <el-tag type="primary" v-for="(item, index) in scope.row.dept" :key="index" >{{item.name}}</el-tag>
+              </template>
+            </el-table-column>
             <el-table-column align="center" label="状态">
               <template slot-scope="scope">
                 <el-tag type="info" v-if="scope.row.status === 0">未激活</el-tag>
@@ -162,22 +167,14 @@
           border
           stripe
           @selection-change="bindingUser">
-          <el-table-column
-            align="center"
-            type="selection">
-          </el-table-column>
-          <el-table-column
-            prop="name"
-            label="姓名">
-          </el-table-column>
-          <el-table-column
-            prop="phone"
-            label="手机">
-          </el-table-column>
-          <el-table-column
-            prop="mail"
-            label="邮箱"
-            show-overflow-tooltip>
+          <el-table-column align="center" type="selection"></el-table-column>
+          <el-table-column prop="name" label="姓名"></el-table-column>
+          <el-table-column prop="phone" label="手机"></el-table-column>
+          <el-table-column prop="mail" label="邮箱" show-overflow-tooltip></el-table-column>
+          <el-table-column align="center" label="部门" show-overflow-tooltip>
+            <template slot-scope="scope">
+              <el-tag type="primary" v-for="(item, index) in scope.row.dept" :key="index" >{{item.name}}</el-tag>
+            </template>
           </el-table-column>
           <el-table-column align="center" label="状态">
             <template slot-scope="scope">
@@ -470,6 +467,12 @@ export default {
       })
       setTimeout(() => {
         this.$refs.roleTree.setCurrentNode(this.currentRole)
+        let arr = this.roleTree.filter(item => {
+          return item.id === this.currentRole.id
+        })
+        if (arr.length > 0) {
+          this.currentRole = arr[0]
+        }
       }, 10)
     },
     _getMenuTree() {
@@ -560,4 +563,6 @@ export default {
   height 400px
   background white
   overflow hidden
+.el-tag
+  margin 0 2px
 </style>

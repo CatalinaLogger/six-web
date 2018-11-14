@@ -98,7 +98,7 @@
 
 <script type="text/ecmascript-6">
 import treeTable from '@/components/tree-table'
-import { getDeptTree, getDeptLeadList, insertDept, updateDept, deleteDept, getUserPage } from '@/api/system'
+import { getDeptTree, insertDept, updateDept, deleteDept, getUserPage } from '@/api/system'
 
 export default {
   name: 'keep_dept',
@@ -171,15 +171,15 @@ export default {
           })
         }
       })
-      getDeptLeadList(dept.id).then(res => {
-        this.deptModel.leadKeys = res.data.map(item => {
+      if (dept.lead) {
+        this.deptModel.leadKeys = dept.lead.map(item => {
           return item.id
         })
-        this.deptModel.leadNames = res.data.map(item => {
+        this.deptModel.leadNames = dept.lead.map(item => {
           return item.name
         })
         this.leadList = this.deptModel.leadKeys
-      })
+      }
       Object.assign(this.deptModel, dept)
       this.deptFormTitle = '编辑部门信息'
       this.deptVisible = true

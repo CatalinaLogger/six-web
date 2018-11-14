@@ -63,17 +63,6 @@ export function getDeptTree() {
   })
 }
 
-/** 获取部门主管列表 */
-export function getDeptLeadList(deptId) {
-  return request({
-    url: '/system/dept/lead/list',
-    method: 'get',
-    params: {
-      deptId
-    }
-  })
-}
-
 export function insertDept(dept) {
   return request({
     url: '/system/dept/insert',
@@ -302,8 +291,7 @@ export function insertUser(user) {
       deptId: user.deptId,
       status: user.status,
       remark: user.remark,
-      deptKeys: user.deptKeys.toString(),
-      roleKeys: user.roleKeys.toString()
+      deptKeys: user.deptKeys.toString()
     }
   })
 }
@@ -321,8 +309,7 @@ export function updateUser(user) {
       deptId: user.deptId,
       status: user.status,
       remark: user.remark,
-      deptKeys: user.deptKeys.toString(),
-      roleKeys: user.roleKeys.toString()
+      deptKeys: user.deptKeys.toString()
     }
   })
 }
@@ -360,17 +347,6 @@ export function getUserListRole(roleCode) {
     method: 'get',
     params: {
       roleCode
-    }
-  })
-}
-
-/** 获取用户绑定角色的Key值 */
-export function getUserRoleKeys(userId) {
-  return request({
-    url: '/system/user/role/keys',
-    method: 'get',
-    params: {
-      userId
     }
   })
 }

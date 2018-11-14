@@ -106,45 +106,38 @@
       :visible.sync="userVisible"
       append-to-body
       @close="closeUserForm">
-      <scroll-bar class="user-form-wrapper">
-        <el-form :model="userModel" :rules="userRules" label-width="80px" ref="userForm" style="margin: 0 60px">
-          <el-form-item label="用户名" prop="username">
-            <el-input v-model="userModel.username" max="20"></el-input>
-          </el-form-item>
-          <el-form-item label="姓名" prop="name">
-            <el-input v-model="userModel.name" max="20"></el-input>
-          </el-form-item>
-          <el-form-item label="手机" prop="phone">
-            <el-input v-model="userModel.phone"></el-input>
-          </el-form-item>
-          <el-form-item label="邮箱" prop="mail">
-            <el-input v-model="userModel.mail" max="40"></el-input>
-          </el-form-item>
-          <el-form-item label="部门" prop="deptKeys">
-            <el-button plain style="width: 100%; overflow: hidden" @click="showDeptTree">
-              <div v-if="userModel.deptKeys.length > 0">
-                <span class="dept-block" v-for="(item, index) in userModel.deptNames" :key="index" >{{item}}</span>
-              </div>
-              <span class="dept-empty" v-else>请选择部门</span>
-            </el-button>
-          </el-form-item>
-          <el-form-item label="备注">
-            <el-input v-model="userModel.remark" max="200"></el-input>
-          </el-form-item>
-          <el-form-item label="状态">
-            <el-radio-group v-model="userModel.status">
-              <el-radio-button label="0" :disabled="disabled0">未激活</el-radio-button>
-              <el-radio-button label="1" :disabled="disabled1">正常</el-radio-button>
-              <el-radio-button label="2" :disabled="disabled1">冻结</el-radio-button>
-            </el-radio-group>
-          </el-form-item>
-          <el-form-item label="角色">
-            <el-checkbox-group v-model="userModel.roleKeys">
-              <el-checkbox class="role-item" v-for="role in roleList" :label="role.id" :key="role.id">{{role.name}}</el-checkbox>
-            </el-checkbox-group>
-          </el-form-item>
-        </el-form>
-      </scroll-bar>
+      <el-form class="user-form-wrapper" :model="userModel" :rules="userRules" label-width="80px" ref="userForm" style="margin: 0 60px">
+        <el-form-item label="用户名" prop="username">
+          <el-input v-model="userModel.username" max="20"></el-input>
+        </el-form-item>
+        <el-form-item label="姓名" prop="name">
+          <el-input v-model="userModel.name" max="20"></el-input>
+        </el-form-item>
+        <el-form-item label="手机" prop="phone">
+          <el-input v-model="userModel.phone"></el-input>
+        </el-form-item>
+        <el-form-item label="邮箱" prop="mail">
+          <el-input v-model="userModel.mail" max="40"></el-input>
+        </el-form-item>
+        <el-form-item label="部门" prop="deptKeys">
+          <el-button plain style="width: 100%; overflow: hidden" @click="showDeptTree">
+            <div v-if="userModel.deptKeys.length > 0">
+              <span class="dept-block" v-for="(item, index) in userModel.deptNames" :key="index" >{{item}}</span>
+            </div>
+            <span class="dept-empty" v-else>请选择部门</span>
+          </el-button>
+        </el-form-item>
+        <el-form-item label="备注">
+          <el-input v-model="userModel.remark" max="200"></el-input>
+        </el-form-item>
+        <el-form-item label="状态">
+          <el-radio-group v-model="userModel.status">
+            <el-radio-button label="0" :disabled="disabled0">未激活</el-radio-button>
+            <el-radio-button label="1" :disabled="disabled1">正常</el-radio-button>
+            <el-radio-button label="2" :disabled="disabled1">冻结</el-radio-button>
+          </el-radio-group>
+        </el-form-item>
+      </el-form>
       <el-dialog
         title="选择部门"
         top="0"
@@ -202,7 +195,7 @@
 
 <script type="text/ecmascript-6">
 import ScrollBar from '@/components/scroll-bar'
-import { getDeptTree, getRoleMine, getUserDeptList, getUserRoleKeys, getUserPage, checkExist, insertUser, updateUser, deleteUser, deleteBatchUser } from '@/api/system'
+import { getDeptTree, getUserDeptList, getUserPage, checkExist, insertUser, updateUser, deleteUser, deleteBatchUser } from '@/api/system'
 
 export default {
   name: 'keep_user',
@@ -253,7 +246,6 @@ export default {
     return {
       rootDept: true,
       highlight: false,
-      roleList: [],
       deptRoot: {},
       deptTree: [],
       deptProps: {
@@ -270,7 +262,7 @@ export default {
       userFormTitle: '',
       userVisible: false,
       treeVisible: false,
-      userModel: {status: 0, deptKeys: [], deptNames: [], roleKeys: []},
+      userModel: {status: 0, deptKeys: [], deptNames: []},
       userRules: {
         username: [{required: true, trigger: 'blur', validator: validateUsername}],
         name: [{required: true, trigger: 'blur', message: '姓名不能为空'}],
@@ -302,7 +294,6 @@ export default {
   },
   mounted() {
     this._getDeptTree()
-    this._getRoleMine()
     this._getUserPage(null, null, this.currentPage, this.pageSize)
   },
   methods: {
@@ -325,8 +316,7 @@ export default {
       this.userModel = {
         deptKeys: [this.currentDept.id],
         deptNames: [this.currentDept.name],
-        status: 0,
-        roleKeys: []
+        status: 0
       }
       this.userFormTitle = '添加用户'
       this.userVisible = true
@@ -340,9 +330,6 @@ export default {
         this.userModel.deptNames = res.data.map(item => {
           return item.name
         })
-      })
-      getUserRoleKeys(user.id).then(res => {
-        this.userModel.roleKeys = res.data
       })
       this.userFormTitle = '编辑用户'
       this.userVisible = true
@@ -427,11 +414,6 @@ export default {
         this.deptTree = res.data[0].children
       })
     },
-    _getRoleMine() {
-      getRoleMine().then(res => {
-        this.roleList = res.data
-      })
-    },
     _getUserPage(deptId, query, page, size) {
       getUserPage(deptId, query, page, size).then(res => {
         this.totalRecode = res.data.total
@@ -481,8 +463,6 @@ export default {
       border-top 1px solid #ebebeb
       padding 8px 0 0 6px
 .user-form-wrapper
-  height 470px
-  overflow hidden
   background-color white
   .dept-block
     padding 5px
