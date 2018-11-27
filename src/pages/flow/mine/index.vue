@@ -94,9 +94,10 @@
           <span style="margin-left: 10px">{{ scope.row.endTime }}</span>
         </template>
       </el-table-column>
-      <el-table-column align="center" label="操作" width="220">
+      <el-table-column align="center" label="操作" width="300">
         <template slot-scope="scope">
-          <el-button type="primary" size="mini" @click="imageProcess(scope.row)">流程跟踪</el-button>
+          <el-button type="primary" size="mini" @click="imageProcess(scope.row)" :disabled="!!scope.row.endTime">流程跟踪</el-button>
+          <el-button type="warning" size="mini" @click="showPress(scope.row)" :disabled="!!scope.row.endTime">催办</el-button>
           <el-button type="success" size="mini" @click="checkFlow(scope.row)">查看详情</el-button>
         </template>
       </el-table-column>
@@ -115,8 +116,19 @@
     <el-dialog
       fullscreen
       :visible.sync="imageVisible">
-      <div>
+      <el-scrollbar class="scroll-wrapper" wrap-class="scrollbar-wrapper">
         <img :src="imageUrl" alt="">
+      </el-scrollbar>
+    </el-dialog>
+    <el-dialog
+      top="0"
+      width="500px"
+      title="操作提示"
+      :visible.sync="pressVisible">
+      <div><p class="strong-font danger">催办通知将通过微信发送给办理人, 确定要催办吗？</p> </div>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="pressVisible = false">取 消</el-button>
+        <el-button type="primary" @click="pressFlow">确 定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -125,7 +137,8 @@
 <script type="text/ecmascript-6">
 import Sticky from '@/components/sticky'
 import { getConfDataTree } from '@/api/global'
-import { getMinePage } from '@/api/flow'
+import { getMinePage, pressFlow } from '@/api/flow'
+
 export default {
   name: 'keep_past',
   data() {
@@ -136,6 +149,8 @@ export default {
       mineList: [], // 我发起的流程
       imageVisible: false,
       imageUrl: '',
+      pressVisible: false,
+      flow: null,
       queryModel: {
         startEnd: []
       },
@@ -171,12 +186,22 @@ export default {
       this.imageUrl = `${this.baseURL}/process/follow?processId=${task.procInstId}&time=${new Date().getTime()}`
       this.imageVisible = true
     },
+    showPress(flow) {
+      this.flow = flow
+      this.pressVisible = true
+    },
+    pressFlow() {
+      pressFlow(this.flow.procInstId).then(res => {
+        console.log(res)
+      })
+    },
     checkFlow(mine) {
       this.$router.push({
         name: `keep_${mine.procDefKey}`,
         params: {
           task: mine,
-          formKey: '-'
+          formKey: '#',
+          readOnly: true
         }
       })
     },
@@ -223,4 +248,7 @@ export default {
 </script>
 
 <style scoped lang="stylus" rel="stylesheet/stylus">
+.scroll-wrapper
+  overflow hidden
+  height calc(100vh - 60px)
 </style>

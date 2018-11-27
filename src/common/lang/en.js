@@ -28,6 +28,11 @@ export default {
     purchase: 'Purchase',
     contract: 'Contract',
     furlough: 'Furlough',
+    desk: 'Desk',
+    report: 'Report',
+    weekly: 'Weekly',
+    monthly: 'Monthly',
+    merge: 'Merge',
     page401: '401',
     page404: '404'
   },

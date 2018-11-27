@@ -29,6 +29,11 @@ export default {
     purchase: '采购申请',
     contract: '合同签署',
     furlough: '调休申请',
+    desk: '工作台',
+    report: '高效汇报',
+    weekly: '周报',
+    monthly: '月报',
+    merge: '汇总报告',
     page401: '401',
     page404: '404'
   },

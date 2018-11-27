@@ -18,37 +18,15 @@
       border
       stripe
       @selection-change="pullSelection">
-      <el-table-column
-        align="center"
-        type="selection"
-        width="55">
+      <el-table-column align="center" type="selection" width="55"></el-table-column>
+      <el-table-column prop="username" label="用户名" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="name" label="姓名" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="phone" label="手机" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="mail" label="邮箱" show-overflow-tooltip>
       </el-table-column>
-      <el-table-column
-        prop="username"
-        label="用户名"
-        show-overflow-tooltip>
-      </el-table-column>
-      <el-table-column
-        prop="name"
-        label="姓名"
-        show-overflow-tooltip>
-      </el-table-column>
-      <el-table-column
-        prop="phone"
-        label="手机"
-        show-overflow-tooltip>
-      </el-table-column>
-      <el-table-column
-        prop="mail"
-        label="邮箱"
-        show-overflow-tooltip>
-      </el-table-column>
-      <el-table-column
-        align="center"
-        label="部门"
-        show-overflow-tooltip>
+      <el-table-column align="center" label="部门" show-overflow-tooltip>
         <template slot-scope="scope">
-          <el-tag type="primary">{{scope.row.deptName}}</el-tag>
+          <el-tag type="primary" v-for="(item, index) in scope.row.dept" :key="index" >{{item.name}}</el-tag>
         </template>
       </el-table-column>
       <el-table-column align="center" label="状态" width="100">
@@ -82,29 +60,13 @@
           border
           stripe
           @selection-change="pushSelection">
-          <el-table-column
-            align="center"
-            type="selection">
-          </el-table-column>
-          <el-table-column
-            prop="name"
-            label="姓名">
-          </el-table-column>
-          <el-table-column
-            prop="phone"
-            label="手机">
-          </el-table-column>
-          <el-table-column
-            prop="mail"
-            label="邮箱"
-            show-overflow-tooltip>
-          </el-table-column>
-          <el-table-column
-            align="center"
-            label="部门"
-            show-overflow-tooltip>
+          <el-table-column align="center" type="selection"></el-table-column>
+          <el-table-column prop="name" label="姓名"></el-table-column>
+          <el-table-column prop="phone" label="手机"></el-table-column>
+          <el-table-column prop="mail" label="邮箱" show-overflow-tooltip></el-table-column>
+          <el-table-column align="center" label="部门" show-overflow-tooltip>
             <template slot-scope="scope">
-              <el-tag type="primary">{{scope.row.deptName}}</el-tag>
+              <el-tag type="primary" v-for="(item, index) in scope.row.dept" :key="index" >{{item.name}}</el-tag>
             </template>
           </el-table-column>
           <el-table-column align="center" label="状态">
@@ -283,4 +245,6 @@ export default {
   height 400px
   background white
   overflow hidden
+.el-tag
+  margin 0 2px
 </style>

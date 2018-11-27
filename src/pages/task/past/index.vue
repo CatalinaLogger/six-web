@@ -95,7 +95,7 @@
       </el-table-column>
       <el-table-column align="center" label="操作" width="220">
         <template slot-scope="scope">
-          <el-button type="primary" size="mini" @click="imageProcess(scope.row)">流程跟踪</el-button>
+          <el-button type="primary" size="mini" @click="imageProcess(scope.row)" :disabled="!!scope.row.finishTime">流程跟踪</el-button>
           <el-button type="success" size="mini" @click="checkTask(scope.row)">查看详情</el-button>
         </template>
       </el-table-column>
@@ -114,9 +114,9 @@
     <el-dialog
       fullscreen
       :visible.sync="imageVisible">
-      <div>
+      <el-scrollbar class="scroll-wrapper" wrap-class="scrollbar-wrapper">
         <img :src="imageUrl" alt="">
-      </div>
+      </el-scrollbar>
     </el-dialog>
   </div>
 </template>
@@ -174,7 +174,8 @@ export default {
         name: `keep_${task.procDefKey}`,
         params: {
           task: task,
-          formKey: '-'
+          formKey: task.formKey ? task.formKey : '#',
+          readOnly: true
         }
       })
     },
@@ -213,4 +214,7 @@ export default {
 </script>
 
 <style scoped lang="stylus" rel="stylesheet/stylus">
+.scroll-wrapper
+  overflow hidden
+  height calc(100vh - 60px)
 </style>

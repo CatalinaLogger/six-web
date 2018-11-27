@@ -1,11 +1,11 @@
 <template>
   <div class="app-wrapper" :class="{hideSidebar:!sidebar.opened}">
     <sidebar class="sidebar-container"></sidebar>
-    <div class="main-container">
+    <el-scrollbar class="main-container" wrap-class="scrollbar-wrapper">
       <navbar></navbar>
       <tags-view></tags-view>
       <app-main></app-main>
-    </div>
+    </el-scrollbar>
   </div>
 </template>
 
@@ -34,6 +34,4 @@ export default {
   position relative
   height 100%
   width 100%
-  .sidebar-container
-    background #304156
 </style>

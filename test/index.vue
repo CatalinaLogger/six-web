@@ -193,4 +193,5 @@ export default {
 <style scoped lang="stylus" rel="stylesheet/stylus">
 .asdfaf
   line-height
+  margin-bottom
 </style>

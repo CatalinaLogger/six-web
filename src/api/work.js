@@ -35,7 +35,7 @@ export function deleteDraft(defineId) {
 }
 
 /** 通用发起申请接口 */
-export function startEasy({defineId, taskId, taskCode, content}) {
+export function startEasy({defineId, taskId, taskCode, taskName, content}) {
   return request({
     url: '/work/easy/start',
     method: 'post',
@@ -43,19 +43,21 @@ export function startEasy({defineId, taskId, taskCode, content}) {
       defineId,
       taskId,
       taskCode,
+      taskName,
       content
     }
   })
 }
 
 /** 通用处理审批接口 */
-export function solveEasy({taskId, taskCode, taskNote}) {
+export function solveEasy({taskId, taskCode, taskName, taskNote}) {
   return request({
     url: '/work/easy/solve',
     method: 'post',
     params: {
       taskId,
       taskCode,
+      taskName,
       taskNote
     }
   })
@@ -68,6 +70,18 @@ export function selectEasy(processId) {
     method: 'get',
     params: {
       processId
+    }
+  })
+}
+
+/** 通用修改附件表单接口 */
+export function updateEasy(processId, carbon) {
+  return request({
+    url: '/work/easy/update',
+    method: 'put',
+    params: {
+      processId,
+      carbon
     }
   })
 }

@@ -4,7 +4,7 @@
       <div class="card-title" :class="{'all-dept':rootDept}" @click="clickRootDept">
         <span class="title-text">{{deptRoot.name}}</span>
       </div>
-      <scroll-bar class="dept-option-wrapper">
+      <el-scrollbar class="dept-option-wrapper" wrap-class="scrollbar-wrapper">
         <div class="six-tree-wrapper">
           <el-tree
             default-expand-all
@@ -16,7 +16,7 @@
             ref="tree">
           </el-tree>
         </div>
-      </scroll-bar>
+      </el-scrollbar>
     </div>
     <div class="card-item center app-box">
       <div class="card-title">
@@ -26,7 +26,7 @@
           <el-button slot="append" @click="handleQuery">查询</el-button>
         </el-input>
       </div>
-      <scroll-bar class="inside-table-wrapper" :list="userData">
+      <scroll-bar class="inside-table-wrapper" wrap-class="scrollbar-wrapper" :list="userData">
         <el-table
           :data="userData"
           stripe

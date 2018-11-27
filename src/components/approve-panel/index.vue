@@ -10,38 +10,41 @@
     <el-row class="history-center" type="flex" justify="center" v-for="task in taskList" :key="task.id">
       <el-col :span="4">{{task.name}}</el-col>
       <el-col :span="8">{{task.taskNote}}</el-col>
-      <el-col :span="4">{{mateTaskCode(task.taskCode)}}</el-col>
+      <el-col :span="4">{{task.taskName}}</el-col>
       <el-col :span="4">{{task.handelUser}}</el-col>
       <el-col :span="4">{{task.endTime}}</el-col>
     </el-row>
     <slot>
-    <el-row class="handel-center" type="flex" justify="center" v-if="formKey && formKey !== 'a'">
-      <el-col :span="24">
-        <el-input
-          type="textarea"
-          :autosize="{ minRows: 2}"
-          :rows="2"
-          placeholder="请输入处理意见"
-          v-model="taskNote">
-        </el-input>
-      </el-col>
-    </el-row>
-    <el-row class="handel-button" type="flex" justify="center" v-if="formKey && formKey !== 'a'">
-      <el-col :span="24">
-          <el-button type="danger" icon="el-icon-error" @click="handelResolve(-1)">驳回</el-button>
-          <el-button type="success" icon="el-icon-success" @click="handelResolve(1)">同意</el-button>
-      </el-col>
-    </el-row>
+      <el-row class="handel-center" type="flex" justify="center" v-if="!readOnly">
+        <el-col :span="24">
+          <el-input
+            type="textarea"
+            :autosize="{ minRows: 2}"
+            :rows="2"
+            placeholder="请输入处理意见"
+            v-model="taskNote">
+          </el-input>
+        </el-col>
+      </el-row>
+      <el-row class="handel-button" type="flex" justify="center" v-if="!readOnly && formKey !== 'a'">
+        <el-col :span="24">
+            <el-button type="info" icon="el-icon-info" @click="closeClick">暂不处理</el-button>
+            <el-button type="danger" icon="el-icon-error" @click="handelResolve({taskCode: -1, taskName: '驳回申请', message: '请确认是否驳回申请，点击确定后将不可修改！'})">驳回申请</el-button>
+            <el-button type="success" icon="el-icon-success" @click="handelResolve({taskCode: 1, taskName: '同意申请', message: '请确认是否同意申请，点击确定后将不可修改！'})">同意申请</el-button>
+        </el-col>
+      </el-row>
     </slot>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
 import { getTaskList } from '@/api/flow'
-import { getConfDataTree } from '@/api/global'
-
 export default {
   props: {
+    readOnly: {
+      type: Boolean,
+      default: false
+    },
     formKey: {
       type: String,
       default: ''
@@ -61,27 +64,37 @@ export default {
   activated() {
     this.$nextTick().then(() => {
       this.taskNote = ''
-      this._getCodeList()
+      this._getTaskList()
     })
   },
   methods: {
-    handelResolve(taskCode) {
+    closeClick() {
+      let view = {name: this.$route.name, path: this.$route.path}
+      this.$store.dispatch('delVisitedViews', view).then((views) => {
+        if (this.isActive(view)) {
+          const latestView = views.slice(-1)[0]
+          if (latestView) {
+            this.$router.push(latestView.path)
+          } else {
+            this.$router.push('/')
+          }
+        }
+      })
+    },
+    isActive(route) {
+      return route.path === this.$route.path || route.name === this.$route.name
+    },
+    handelResolve({taskCode, taskName, message}) {
       if (taskCode === -1 && !this.taskNote) {
         this.$message.error('请输入处理意见')
         return
       }
-      this.$emit('handel', {taskCode, taskNote: this.taskNote})
+      this.$emit('handel', {taskCode, taskName, message, taskNote: this.taskNote})
     },
     mateTaskCode(code) {
       return this.codeList.filter(item => {
         return item.value === code
       })[0].name
-    },
-    _getCodeList() {
-      getConfDataTree('HandleResult').then(res => {
-        this.codeList = res.data
-        this._getTaskList()
-      })
     },
     _getTaskList() {
       getTaskList(this.processId).then(res => {

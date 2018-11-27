@@ -9,6 +9,7 @@ export const flowFormMixin = {
       draft: false,
       mine: {},
       formKey: '',
+      readOnly: false,
       defineId: '',
       task: {},
       levelList: [], // 紧急程度配置
@@ -53,7 +54,7 @@ export const flowFormMixin = {
     },
     /** 取消申请 */
     cancelClick() {
-      this.startProcess({taskId: this.task.id, taskCode: -2})
+      this.startProcess({taskId: this.task.id, taskCode: -2, taskName: '取消申请'})
     },
     /** 提交申请 */
     startClick() {
@@ -61,10 +62,10 @@ export const flowFormMixin = {
         if (valid) {
           if (this.task.id) {
             /** 重新发起申请 */
-            this.startProcess({taskId: this.task.id, taskCode: 2})
+            this.startProcess({taskId: this.task.id, taskCode: 2, taskName: '提交申请'})
           } else {
             /** 首次发起申请 */
-            this.startProcess({defineId: this.defineId, taskCode: 2})
+            this.startProcess({defineId: this.defineId, taskCode: 2, taskName: '提交申请'})
           }
         }
       })
@@ -89,10 +90,11 @@ export const flowFormMixin = {
     _getParams () {
       if (this.$route.params.formKey) {
         this.formKey = this.$route.params.formKey
-        if (this.$route.params.formKey === '-') {
-          this.formKey = ''
+        if (this.$route.params.formKey === '#') {
+          this.formKey = null
         }
       }
+      this.readOnly = this.$route.params.readOnly
       /** 当发起一个流程时 */
       if (this.$route.params.defineId) {
         this.defineId = this.$route.params.defineId

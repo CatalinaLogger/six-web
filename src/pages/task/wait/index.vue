@@ -105,9 +105,9 @@
     <el-dialog
       fullscreen
       :visible.sync="imageVisible">
-      <div>
+      <el-scrollbar class="scroll-wrapper" wrap-class="scrollbar-wrapper">
         <img :src="imageUrl" alt="">
-      </div>
+      </el-scrollbar>
     </el-dialog>
   </div>
 </template>
@@ -166,7 +166,8 @@ export default {
         name: `keep_${task.procDefKey}`,
         params: {
           task: task,
-          formKey: task.formKey ? task.formKey : 'b'
+          formKey: task.formKey ? task.formKey : '#',
+          readOnly: false
         }
       })
     },
@@ -210,4 +211,7 @@ export default {
 </script>
 
 <style scoped lang="stylus" rel="stylesheet/stylus">
+.scroll-wrapper
+  overflow hidden
+  height calc(100vh - 60px)
 </style>

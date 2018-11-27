@@ -17,7 +17,7 @@
             </div>
           </div>
         </el-form-item>
-        <el-row :gutter="20">
+        <el-row :gutter="20" v-if="!readOnly && formKey === 'a'">
           <el-col :span="12">
             <el-form-item label="部门负责人" prop="leader">
               <el-select v-model="workModel.leader" placeholder="请选择">
@@ -46,22 +46,34 @@
             </el-form-item>
           </el-col>
         </el-row>
-        <el-form-item v-if="formKey === 'a'">
-          <tinymce v-model="workModel.content" :height=800 ref="editor"/>
+        <el-form-item v-if="!readOnly && formKey === 'a'">
+          <tinymce v-model="workModel.content" :height=800 ref="showDialog"/>
         </el-form-item>
-        <el-form-item v-else>
-          <div v-html="workModel.content"></div>
-        </el-form-item>
-        <approve-panel :formKey="formKey" :processId="task.procInstId" @handel="solveProcess">
-          <el-row class="handel-button" type="flex" justify="center" v-if="formKey && formKey === 'c'">
+        <div class="content" v-html="workModel.content" v-else></div>
+        <approve-panel :readOnly="readOnly" :formKey="formKey" :processId="task.procInstId" @handel="showDialog">
+          <el-row class="handel-button" type="flex" justify="center" v-if="!readOnly && formKey === 'b'">
             <el-col :span="24">
-              <el-button type="danger" icon="el-icon-error" @click="closeClick">暂不采购</el-button>
-              <el-button type="success" icon="el-icon-success" @click="solveProcess({taskCode: 100})">确认采购</el-button>
+              <el-button type="info" icon="el-icon-info" @click="closeClick">暂不处理</el-button>
+              <el-button type="success" icon="el-icon-success" @click="showDialog({taskCode: 100, taskName: '确认签署', message: '请确认物品是否已经采购完毕，点击确定后将不可修改！'})">确认签署</el-button>
             </el-col>
           </el-row>
         </approve-panel>
       </el-form>
     </div>
+    <el-dialog
+      top="0"
+      width="500px"
+      title="操作提示"
+      :visible.sync="visible">
+      <div>
+        <p class="strong-font danger">{{message}}</p>
+        <p class="strong-font info">确定要这么做吗？</p>
+      </div>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="visible = false">取 消</el-button>
+        <el-button type="primary" @click="solveProcess(param)">确 定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -80,13 +92,20 @@ export default {
         leader: [{required: true, message: '部门负责人为必选项', trigger: 'blur'}]
       },
       userList: [],
-      loading: false
+      loading: false,
+      visible: false,
+      message: ''
     }
   },
   created() {
     this._getUserRole()
   },
   methods: {
+    showDialog(param) {
+      this.param = param
+      this.message = param.message
+      this.visible = true
+    },
     /** 发起人处理结果 */
     startProcess(param) {
       this.loading = true
@@ -104,6 +123,7 @@ export default {
     },
     /** 审核人处理结果 */
     solveProcess(param) {
+      this.visible = false
       this.loading = true
       param.taskId = this.task.id
       solveEasy(param).then(() => {
@@ -118,54 +138,69 @@ export default {
     _createWorkModel() {
       let date = new Date()
       let content =
-        `<p style="text-align: center; font-size: 26px;"><strong>合同签署审批表</strong></p>
-        <p style="text-align: right; margin: 0;">编号：ZH01-2018</p>
-        <table style="width: 100%; border-collapse: collapse;" border="1" cellspacing="0" cellpadding="10">
-        <tbody>
-        <tr>
-        <td style="width: 100%;">
-        <p style="margin: 0;">申请人：${this.mine.name}<span style="float: right;">申请时间：${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日</span></p>
-        </td>
-        </tr>
-        <tr>
-        <td style="width: 100%; text-align: center;"><strong>合同基本情况</strong></td>
-        </tr>
-        <tr>
-        <td style="width: 100%;">合同类型：<label><input name="Fruit" type="checkbox" value="" />技术咨询</label> <label><input name="Fruit" type="checkbox" value="" />技术开发</label> <label><input name="Fruit" type="checkbox" value="" />电子元件或设备 </label> <label><input name="Fruit" type="checkbox" value="" />科研 </label> <label><input name="Fruit" type="checkbox" value="" />其它 </label></td>
-        </tr>
-        <tr>
-        <td style="width: 100%;">甲方： 湖南北斗微芯产业发展有限公司</td>
-        </tr>
-        <tr>
-        <td style="width: 100%;">乙方： 深圳市盛达电子科技有限公司</td>
-        </tr>
-        <tr>
-        <td style="width: 100%;">合同名称：《销售合同》</td>
-        </tr>
-        <tr>
-        <td style="width: 100%;">合同标的：我公司采购LT1962EMS8-3.3 器件一批，详细数量及单价见《销售合同》</td>
-        </tr>
-        <tr>
-        <td style="width: 100%;">合同金额： ￥ <span style="text-decoration: underline;">15048.00</span>&nbsp;（ 大写： <span style="text-decoration: underline;">一万伍仟零肆拾捌元整</span> ）</td>
-        </tr>
-        <tr>
-        <td style="width: 100%;">支付方式： 银行转账，款到发货。</td>
-        </tr>
-        <tr>
-        <td style="width: 100%;">合同生效时间：${date.getFullYear()}年${date.getMonth() + 1}月日（双方签字盖章后即刻生效）</td>
-        </tr>
-        <tr>
-        <td style="width: 100%;">合同终止时间：${date.getFullYear()}年${date.getMonth() + 1}月日</td>
-        </tr>
-        <tr>
-        <td style="width: 100%;">&nbsp;</td>
-        </tr>
-        <tr>
-        <td style="width: 100%;">&nbsp;</td>
-        </tr>
-        </tbody>
-        </table>`
+          `<table style="width: 100%; border-collapse: collapse; border-style: hidden;">
+          <tbody>
+          <tr>
+          <td style="width: 33.3333%; border-style: hidden;"><img class="wscnph" src="http://10.10.10.164/group1/M00/00/00/CgoKpFvzcFaAH2GrAAAVNGfIFTk950.png" /></td>
+          <td style="width: 33.3333%; border-style: hidden; text-align: center; font-size: 30px;"><span style="color: #303133;"><strong>合同签署审批表</strong></span></td>
+          <td style="width: 33.3333%; border-style: hidden;">&nbsp;</td>
+          </tr>
+          </tbody>
+          </table>
+          <table style="width: 100%; border-collapse: collapse;" border="1" cellpadding="10">
+          <tbody>
+          <tr>
+          <td style="width: 3%; background: #efefef;"><span style="color: #409eff; font-weight: bold;">申请人</span></td>
+          <td style="width: 10%;">${this.mine.name}</td>
+          <td style="width: 3%; background: #efefef;"><span style="color: #409eff; font-weight: bold;">申请时间</span></td>
+          <td style="width: 10%;">${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日</td>
+          </tr>
+          <tr>
+          <td style="width: 25%; background: #efefef; text-align: center;" colspan="4"><span style="color: #409eff; font-weight: bold;">合同基本情况</span></td>
+          </tr>
+          <tr>
+          <td style="background: #efefef;"><span style="color: #409eff; font-weight: bold;">合同类型</span></td>
+          <td colspan="3"><label><input name="Fruit" type="checkbox" value="" />技术咨询</label> <label><input name="Fruit" type="checkbox" value="" />技术开发</label> <label><input name="Fruit" type="checkbox" value="" />电子元件或设备 </label> <label><input name="Fruit" type="checkbox" value="" />科研 </label> <label><input name="Fruit" type="checkbox" value="" />其它 </label></td>
+          </tr>
+          <tr>
+          <td style="background: #efefef;"><span style="color: #409eff; font-weight: bold;">甲方</span></td>
+          <td colspan="3">湖南北斗微芯产业发展有限公司</td>
+          </tr>
+          <tr>
+          <td style="background: #efefef;"><span style="color: #409eff; font-weight: bold;">乙方</span></td>
+          <td colspan="3">&nbsp;</td>
+          </tr>
+          <tr>
+          <td style="background: #efefef;"><span style="color: #409eff; font-weight: bold;">合同名称</span></td>
+          <td colspan="3">&nbsp;</td>
+          </tr>
+          <tr>
+          <td style="background: #efefef;"><span style="color: #409eff; font-weight: bold;">合同标的</span></td>
+          <td colspan="3">&nbsp;</td>
+          </tr>
+          <tr>
+          <td style="background: #efefef;"><span style="color: #409eff; font-weight: bold;">合同金额</span></td>
+          <td colspan="3">￥ <span style="text-decoration: underline;">15048.00</span>&nbsp;（ 大写： <span style="text-decoration: underline;">一万伍仟零肆拾捌元整</span> ）</td>
+          </tr>
+          <tr>
+          <td style="background: #efefef;"><span style="color: #409eff; font-weight: bold;">支付方式</span></td>
+          <td colspan="3">银行转账，款到发货。</td>
+          </tr>
+          <tr>
+          <td style="background: #efefef;"><span style="color: #409eff; font-weight: bold;">合同生效时间</span></td>
+          <td colspan="3">${date.getFullYear()}年${date.getMonth() + 1}月日（双方签字盖章后即刻生效）</td>
+          </tr>
+          <tr>
+          <td style="background: #efefef;"><span style="color: #409eff; font-weight: bold;">合同终止时间</span></td>
+          <td colspan="3">${date.getFullYear()}年月日</td>
+          </tr>
+          </tbody>
+          </table>`
       this.workModel = {content: content}
+      try {
+        this.$refs.content.setContent(content)
+      } catch (e) {
+      }
     },
     /** 查询申请表单数据 */
     _selectWorkModel() {
@@ -186,4 +221,7 @@ export default {
 </script>
 
 <style scoped lang="stylus" rel="stylesheet/stylus">
+.content
+  padding 20px
+  background white
 </style>

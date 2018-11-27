@@ -35,7 +35,7 @@ export function activateFlow(processId) {
   })
 }
 
-/** 获取用户已办任务列表 */
+/** 获取用户发起流程列表 */
 export function getMinePage(param, page, size) {
   return request({
     url: '/flow/mine/page',
@@ -49,6 +49,17 @@ export function getMinePage(param, page, size) {
       end: param.startEnd[1],
       page,
       size
+    }
+  })
+}
+
+/** 流程催办 */
+export function pressFlow(processId) {
+  return request({
+    url: '/flow/press',
+    method: 'post',
+    params: {
+      processId
     }
   })
 }

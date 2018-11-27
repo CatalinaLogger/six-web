@@ -27,7 +27,9 @@ export default {
     }
   },
   mounted() {
-    this.$router.push('/task/wait')
+    setTimeout(() => {
+      this.$router.push('/task/wait')
+    }, 10)
   },
   components: { adminDashboard, editorDashboard }
 }

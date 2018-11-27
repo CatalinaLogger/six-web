@@ -5,7 +5,7 @@
         <span class="title-text">角色列表</span>
         <el-button class="add-button" type="success" size="mini" @click="addGroup()">新增角色组</el-button>
       </div>
-      <scroll-bar class="role-option-wrapper" :delta="15">
+      <el-scrollbar class="role-option-wrapper" wrap-class="scrollbar-wrapper">
         <div class="six-tree-wrapper">
           <el-tree
             highlight-current
@@ -18,7 +18,7 @@
             ref="roleTree">
           </el-tree>
         </div>
-      </scroll-bar>
+      </el-scrollbar>
     </div>
     <div class="card-item center app-box">
       <div class="group" v-if="currentRole.parentId === 0">

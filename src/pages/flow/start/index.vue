@@ -6,7 +6,7 @@
           <title-line :title="mateCategory(item.category)" type="success"></title-line>
           <el-row class="process-option">
             <el-col :span="8" v-for="process in item.process" :key="process.id">
-              <router-link class="button" tag="div" :to="{name: 'keep_' + process.key, params: {defineId: process.id, formKey: 'a'}}">
+              <router-link class="button" tag="div" :to="{name: 'keep_' + process.key, params: {defineId: process.id, formKey: 'a', readOnly: false}}">
                 <div class="icon-box"><svg-icon :icon-class="'flow-' + process.key" /></div>
                 <p class="icon-text">{{process.name}}</p>
               </router-link>

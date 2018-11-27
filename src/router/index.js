@@ -58,6 +58,7 @@ export function treeToRouters(menuTree, parent, meta, src, level) {
           tmp.path = record.path
         } catch (e) {
           /** 找不到模板文件不做处理 */
+          console.log(e)
           return
         }
       } else {

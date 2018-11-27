@@ -1,47 +1,58 @@
-<template>
-  <div class="tree-wrapper">
-    <template v-for="item in treeData">
-
-      <el-submenu :index="item.name" :key="item.id">
-
-        <template slot="title" class="is-active">
-          <svg-icon icon-class="user"></svg-icon>
-          <span>{{item.name}}</span>
-        </template>
-
-        <template v-for="child in item.children">
-          <tree-item v-if="child.children&&child.children.length>0" :treeData="[child]" :key="child.id"></tree-item>
-
-          <el-menu-item v-else :index="child.name" :key="child.id">
-            <svg-icon icon-class="user"></svg-icon>
-            <span>{{child.name}}</span>
-          </el-menu-item>
-
-        </template>
-
-      </el-submenu>
-
-      <div class="role-option" v-for="(item, index) in roleData" :class="highlightRole(item)" :key="index" @click="selectRole(item)">
-            <span class="role-name">
-              {{item.name}}
-              <span class="code">{{item.code}}</span>
-            </span>
-        <el-button-group>
-          <el-button type="warning" icon="el-icon-edit" size="mini" @click.stop="editRole(item)"></el-button>
-          <el-button type="danger" icon="el-icon-delete" size="mini" @click.stop="deleteRole(item)"></el-button>
-        </el-button-group>
-      </div>
-    </template>
-  </div>
-</template>
-
-<script type="text/ecmascript-6">
-export default {
-  name: 'TreeItem',
-  props: {
-    treeData: {
-      type: Array
-    }
-  }
-}
-</script>
+<table style="width: 100%; border-collapse: collapse; border-style: hidden;">
+  <tbody>
+  <tr>
+    <td style="width: 33.3333%; border-style: hidden;"><img class="wscnph" src="http://10.10.10.164/group1/M00/00/00/CgoKpFvzcFaAH2GrAAAVNGfIFTk950.png" /></td>
+    <td style="width: 33.3333%; border-style: hidden; text-align: center; font-size: 30px;"><span style="color: #303133;"><strong>合同签署审批表</strong></span></td>
+    <td style="width: 33.3333%; border-style: hidden;">&nbsp;</td>
+  </tr>
+  </tbody>
+</table>
+<table style="width: 100%; border-collapse: collapse;" border="1" cellpadding="10">
+  <tbody>
+  <tr>
+    <td style="width: 10%;">申请人</td>
+    <td style="width: 10%;">&nbsp;</td>
+    <td style="width: 10%;">申请时间</td>
+    <td style="width: 10%;">&nbsp;</td>
+  </tr>
+  <tr>
+    <td style="width: 25%; text-align: center;" colspan="4">合同基本情况</td>
+  </tr>
+  <tr>
+    <td>合同类型</td>
+    <td colspan="3"><label><input name="Fruit" type="checkbox" value="" />技术咨询</label> <label><input name="Fruit" type="checkbox" value="" />技术开发</label> <label><input name="Fruit" type="checkbox" value="" />电子元件或设备 </label> <label><input name="Fruit" type="checkbox" value="" />科研 </label> <label><input name="Fruit" type="checkbox" value="" />其它 </label></td>
+  </tr>
+  <tr>
+    <td>甲方</td>
+    <td colspan="3">湖南北斗微芯产业发展有限公司</td>
+  </tr>
+  <tr>
+    <td>乙方</td>
+    <td colspan="3">&nbsp;</td>
+  </tr>
+  <tr>
+    <td>合同名称</td>
+    <td colspan="3">&nbsp;</td>
+  </tr>
+  <tr>
+    <td>合同标的</td>
+    <td colspan="3">&nbsp;</td>
+  </tr>
+  <tr>
+    <td>合同金额</td>
+    <td colspan="3">￥ <span style="text-decoration: underline;">15048.00</span>&nbsp;（ 大写： <span style="text-decoration: underline;">一万伍仟零肆拾捌元整</span> ）</td>
+  </tr>
+  <tr>
+    <td>支付方式</td>
+    <td colspan="3">银行转账，款到发货。</td>
+  </tr>
+  <tr>
+    <td>合同生效时间</td>
+    <td colspan="3">2018年11月日（双方签字盖章后即刻生效）</td>
+  </tr>
+  <tr>
+    <td>合同终止时间</td>
+    <td colspan="3">2018年11月日</td>
+  </tr>
+  </tbody>
+</table>

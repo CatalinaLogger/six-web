@@ -1,14 +1,13 @@
 <template>
-  <scroll-bar :delta="15">
+  <el-scrollbar wrap-class="scrollbar-wrapper">
     <el-menu mode="vertical" :default-active="$route.path" :collapse="isCollapse" background-color="#304156" text-color="#fff" active-text-color="#409EFF">
       <menu-item :routes="allRouters"></menu-item>
     </el-menu>
-  </scroll-bar>
+  </el-scrollbar>
 </template>
 
 <script type="text/ecmascript-6">
 import MenuItem from './menu'
-import ScrollBar from '@/components/scroll-bar'
 import { mapGetters } from 'vuex'
 
 export default {
@@ -21,9 +20,13 @@ export default {
       return !this.sidebar.opened
     }
   },
+  watch: {
+    allRouters(val) {
+      console.log(val)
+    }
+  },
   components: {
-    MenuItem,
-    ScrollBar
+    MenuItem
   }
 }
 </script>
