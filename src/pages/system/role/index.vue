@@ -27,7 +27,7 @@
           <el-button type="danger" size="mini" @click="deleteGroup()" :disabled="!currentRole.edit">删除</el-button>
           <el-button class="add-button" type="success" size="mini" @click="addRole()" :disabled="!currentRole.edit">新增角色</el-button>
         </div>
-        <scroll-bar class="inside-table-wrapper" :list="currentRole.children">
+        <el-scrollbar class="inside-table-wrapper" wrap-class="scrollbar-wrapper" :list="currentRole.children">
           <el-table
             stripe
             :key="1"
@@ -52,7 +52,7 @@
               </template>
             </el-table-column>
           </el-table>
-        </scroll-bar>
+        </el-scrollbar>
       </div>
       <div class="role" v-else>
         <div class="card-title">
@@ -62,7 +62,7 @@
             <el-button slot="append" @click="handleQuery">查询</el-button>
           </el-input>
         </div>
-        <scroll-bar class="inside-table-wrapper pagination" :list="userData">
+        <el-scrollbar class="inside-table-wrapper pagination" wrap-class="scrollbar-wrapper" :list="userData">
           <el-table
             stripe
             :key="2"
@@ -85,7 +85,7 @@
               </template>
             </el-table-column>
           </el-table>
-        </scroll-bar>
+        </el-scrollbar>
         <el-pagination
           background
           @size-change="handleSizeChange"
@@ -130,7 +130,7 @@
           <el-input v-model="roleModel.name" max="20"></el-input>
         </el-form-item>
         <el-form-item label="角色授权">
-          <scroll-bar class="menu-option-wrapper">
+          <el-scrollbar class="menu-option-wrapper" wrap-class="scrollbar-wrapper">
             <el-tree
               node-key="id"
               show-checkbox
@@ -141,7 +141,7 @@
               :default-checked-keys="roleModel.menuKeys"
               ref="menuTree">
             </el-tree>
-          </scroll-bar>
+          </el-scrollbar>
         </el-form-item>
       </el-form>
       <div slot="footer">
@@ -159,7 +159,7 @@
           <el-button slot="append" @click="handleUnQuery">查询</el-button>
         </el-input>
       </div>
-      <scroll-bar class="unbound-list-wrapper" :list="userUnData">
+      <el-scrollbar class="unbound-list-wrapper" wrap-class="scrollbar-wrapper" :list="userUnData">
         <el-table
           v-if="userVisible"
           :data="userUnData"
@@ -184,7 +184,7 @@
             </template>
           </el-table-column>
         </el-table>
-      </scroll-bar>
+      </el-scrollbar>
       <el-pagination
         background
         @size-change="handleUnSizeChange"
@@ -220,7 +220,6 @@
 </template>
 
 <script type="text/ecmascript-6">
-import ScrollBar from '@/components/scroll-bar'
 import { getGroupList, getRoleList, getRoleMenuKeys, insertGroup, updateGroup, insertRole, updateRole, deleteRole, getMenuTree, getBoundUserPage, getUnboundUserPage, binding, untying } from '@/api/system'
 
 export default {
@@ -492,9 +491,6 @@ export default {
         this.userUnData = res.data.data
       })
     }
-  },
-  components: {
-    ScrollBar
   }
 }
 </script>

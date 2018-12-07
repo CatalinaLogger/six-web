@@ -5,26 +5,28 @@
           <span class="title-text">字典类别</span>
           <el-button class="add-button" type="success" size="mini" @click="addConf()">添加类别</el-button>
         </div>
-        <scroll-bar class="conf-option-wrapper" :delta="15">
-          <div class="conf-option" v-for="(item, index) in confData" :class="highlightRole(item)" :key="index" @click="selectConf(item)">
+        <el-scrollbar class="conf-option-scrollbar" wrap-class="scrollbar-wrapper">
+          <div class="conf-option-wrapper">
+            <div class="conf-option" v-for="(item, index) in confData" :class="highlightRole(item)" :key="index" @click="selectConf(item)">
             <span class="conf-name">
               {{item.name}}
               <span class="code">{{item.code}}</span>
             </span>
-            <el-button-group>
-              <el-button type="warning" icon="el-icon-edit" size="mini" @click.stop="editConf(item)"></el-button>
-              <el-button type="danger" icon="el-icon-delete" size="mini" @click.stop="deleteConf(item)"></el-button>
-            </el-button-group>
+              <el-button-group>
+                <el-button type="warning" icon="el-icon-edit" size="mini" @click.stop="editConf(item)"></el-button>
+                <el-button type="danger" icon="el-icon-delete" size="mini" @click.stop="deleteConf(item)"></el-button>
+              </el-button-group>
+            </div>
           </div>
-        </scroll-bar>
+        </el-scrollbar>
       </div>
       <div class="card-item center app-box">
         <div class="card-title">
           <span class="title-text">字典数据</span>
           <el-button class="add-button" type="success" size="mini" @click="addConfData()" :disabled="!confCurrent.id">添加</el-button>
         </div>
-        <scroll-bar class="inside-table-wrapper">
-          <tree-table :data="confDataTree" :columns="confDataColumns" stripe>
+        <el-scrollbar class="inside-table-wrapper" wrap-class="scrollbar-wrapper">
+          <tree-table class="tree-table" :data="confDataTree" :columns="confDataColumns" stripe>
             <el-table-column align="center" prop="value" label="数值"></el-table-column>
             <el-table-column align="center" prop="seq" label="序号"></el-table-column>
             <el-table-column
@@ -49,7 +51,7 @@
               </template>
             </el-table-column>
           </tree-table>
-        </scroll-bar>
+        </el-scrollbar>
       </div>
     <el-dialog
       top="0"
@@ -129,7 +131,6 @@
 </template>
 
 <script type="text/ecmascript-6">
-import ScrollBar from '@/components/scroll-bar'
 import TreeTable from '@/components/tree-table'
 import { getConfList, insertConf, updateConf, deleteConf, getConfDataTree, insertConfData, updateConfData, deleteConfData } from '@/api/global'
 
@@ -300,7 +301,6 @@ export default {
     }
   },
   components: {
-    ScrollBar,
     TreeTable
   }
 }
@@ -329,31 +329,39 @@ export default {
         line-height 28px
       .add-button
         float right
-    .conf-option-wrapper
+    .conf-option-scrollbar
       height calc(100vh - 165px)
       background white
       overflow hidden
-      .conf-option
-        padding 8px 11px
-        border-bottom 1px solid #ebebeb
-        &.current-row
-          font-weight bold
-          color white
-          background #409eff
-          .conf-name
-            .code
-              color white
-          &:hover
+      .conf-option-wrapper
+        margin-bottom 8px
+        .conf-option
+          padding 8px 11px
+          border-bottom 1px solid #ebebeb
+          &.current-row
+            font-weight bold
+            color white
             background #409eff
-        &:hover
-          background #e2e2e2
-        .conf-name
-          font-size 14px
-          line-height 28px
-          .code
-            color #909399
-        .el-button-group
-          float right
-          .el-button--mini
-            padding 7px 13px
+            .conf-name
+              .code
+                color white
+            &:hover
+              background #409eff
+          &:hover
+            background #e2e2e2
+          .conf-name
+            font-size 14px
+            line-height 28px
+            .code
+              color #909399
+          .el-button-group
+            float right
+            .el-button--mini
+              padding 7px 13px
+    .inside-table-wrapper
+      height calc(100vh - 165px)
+      background white
+      overflow hidden
+      .tree-table
+        margin-bottom 8px
 </style>

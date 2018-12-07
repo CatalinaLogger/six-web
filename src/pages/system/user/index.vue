@@ -26,7 +26,7 @@
           <el-button slot="append" @click="handleQuery">查询</el-button>
         </el-input>
       </div>
-      <scroll-bar class="inside-table-wrapper" wrap-class="scrollbar-wrapper" :list="userData">
+      <el-scrollbar class="inside-table-wrapper" wrap-class="scrollbar-wrapper">
         <el-table
           :data="userData"
           stripe
@@ -87,7 +87,7 @@
             </template>
           </el-table-column>
         </el-table>
-      </scroll-bar>
+      </el-scrollbar>
       <el-pagination
         background
         @size-change="handleSizeChange"
@@ -194,7 +194,6 @@
 </template>
 
 <script type="text/ecmascript-6">
-import ScrollBar from '@/components/scroll-bar'
 import { getDeptTree, getUserDeptList, getUserPage, checkExist, insertUser, updateUser, deleteUser, deleteBatchUser } from '@/api/system'
 
 export default {
@@ -420,9 +419,6 @@ export default {
         this.userData = res.data.data
       })
     }
-  },
-  components: {
-    ScrollBar
   }
 }
 </script>
